@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://codepen.io/chriddyp/pen/bWLwgP.css">
+    <title>Interactive SDFs with Flask</title>
+</head>
+<body>
+    <h1>Hello Plotly</h1>
+    
+    <div>
+        <h4>Log in to access the full dataset</h4>
+        <div>
+            <label for="username-in">Username:</label>
+            <input type="text" id="username-in" name="username-in" placeholder="Username"><br>
+            <label for="password-in">Password:</label>
+            <input type="password" id="password-in" name="password-in"><br>
+            <input type="button" id='login-button' style="margin-top:20px;" value="Login" onclick="login()"></input>
+        </div>
+    </div>
+
+    <div>
+        <div class="row">
+            <div class="three columns">
+                <h5>NHP</h5>
+                <select name="nhp-dropdown" id="nhp-dropdown">
+                    {% if logged_in == True %} 
+                        <option value="{{nhps[0]}}" SELECTED>{{nhps[0]}}</option>
+                        {% for nhp in nhps[1:] %}
+                            <option value="{{nhp}}">{{nhp}}</option>
+                        {% endfor %}
+                    {% else %} 
+                        <option value="{{nhps[0]}}" SELECTED>{{nhps[0][0:2]}}</option>
+                        {% for nhp in nhps[1:] %}
+                            <option value="{{nhp}}">{{nhp[0:2]}}</option>
+                        {% endfor %}
+                    {% endif %}
+                </select>
+            </div>
+            <div class="three columns">
+                <h5>Session</h5>
+                <select name="sess-dropdown" id="sess-dropdown">
+                    <option value="{{sessions[0]}}" SELECTED>{{sessions[0].split('-')[1]}}</option>
+                    {% for session in sessions[1:] %}
+                        <option value="{{session}}">{{session.split('-')[1]}}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="three columns">
+                <h5>Unit</h5>
+                <select name="unit-dropdown" id="unit-dropdown">
+                    <option value="{{units[0]}}" SELECTED>{{units[0]}}</option>
+                    {% for unit in units[1:] %}
+                        <option value="{{unit}}">{{unit}}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <br>
+        </div>
+    </div>
+    <br>
+    <div class="row">
+        <div class="three columns">
+            <h5>Conditions</h5>
+            <div id="trial-type-checklist">
+                <input type="checkbox" id="in-go" value="ingo" checked>
+                <label for="in-go" style="vertical-align: top; display:inline-block">In-GO</label><br>
+                <input type="checkbox" id="out-go" value="outgo" checked>
+                <label for="out-go" style="vertical-align: top; display:inline-block">Out-GO</label><br>
+                <input type="checkbox" id="in-ng" value="inng">
+                <label for="in-ng" style="vertical-align: top; display:inline-block">In-NOGO</label><br>
+                <input type="checkbox" id="out-ng" value="outng" >
+                <label for="out-ng" style="vertical-align: top; display:inline-block">Out-NOGO</label><br>
+            </div>
+        </div>
+        <div class="three columns">
+            <h5>Array Window</h5>
+            <label for="array_xmin_state">T-Min, Array:</label>
+            <input type="number" id="array_xmin_state" value=-100>
+            <label for="array_xmax_state">T-Max, Array:</label>
+            <input type="number" id="array_xmax_state" value=400>
+        </div>
+        <div class="three columns">
+            <h5>Saccade Window</h5>
+            <label for="sacc_xmin_state">T-Min, Saccade:</label>
+            <input type="number" id="sacc_xmin_state" value=-250>
+            <label for="sacc_xmax_state">T-Max, Saccade:</label>
+            <input type="number" id="sacc_xmax_state" value=250>
+        </div>
+    </div>
+    <input type="button" value="Update" id="plots_update" onclick="updatePlots()">
+    <br>
+    <input type="button" value="Submit SST" id="sst_submit" onclick="submitSSTs()">
+
+    <div id="hh-plots" class="row">
+        <div class="four columns">
+            <h4>HH, Array Aligned</h4>
+            <div id='hh-array' class='chart'></div>
+        </div>
+        <div class="four columns">
+            <h4>HH, Saccade Aligned</h4>
+            <div id='hh-sacc' class='chart'></div>
+        </div>
+    </div>
+    <div id="hl-plots" class="row">
+        <div class="four columns">
+            <h4>HL, Array Aligned</h4>
+            <div id='hl-array' class='chart'></div>
+        </div>
+        <div class="four columns">
+            <h4>HL, Saccade Aligned</h4>
+            <div id='hl-sacc' class='chart'></div>
+        </div>
+    </div>
+    <div id="lh-plots" class="row">
+        <div class="four columns">
+            <h4>LH, Array Aligned</h4>
+            <div id='lh-array' class='chart'></div>
+        </div>
+        <div class="four columns">
+            <h4>LH, Saccade Aligned</h4>
+            <div id='lh-sacc' class='chart'></div>
+        </div>
+    </div>
+    <div id="ll-plots" class="row">
+        <div class="four columns">
+            <h4>LL, Array Aligned</h4>
+            <div id='ll-array' class='chart'></div>
+        </div>
+        <div class="four columns">
+            <h4>LL, Saccade Aligned</h4>
+            <div id='ll-sacc' class='chart'></div>
+        </div>
+    </div>
+
+</body>
+
+<script src='https://cdn.plot.ly/plotly-latest.min.js'></script>
+<script src='https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js'></script>
+<script type='text/javascript'>
+    var hh_arr_graph = {{cond_plots['hh']['array']['data'] | safe}};
+    var hh_sacc_graph = {{cond_plots['hh']['saccade']['data'] | safe}};
+    Plotly.plot('hh-array', hh_arr_graph, {})
+    Plotly.plot('hh-sacc', hh_sacc_graph, {})
+
+    var hl_arr_graph = {{cond_plots['hl']['array']['data'] | safe}};
+    var hl_sacc_graph = {{cond_plots['hl']['saccade']['data'] | safe}};
+    Plotly.plot('hl-array', hl_arr_graph, {})
+    Plotly.plot('hl-sacc', hl_sacc_graph, {})
+    
+    var lh_arr_graph = {{cond_plots['lh']['array']['data'] | safe}};
+    var lh_sacc_graph = {{cond_plots['lh']['saccade']['data'] | safe}};
+    Plotly.plot('lh-array', lh_arr_graph, {})
+    Plotly.plot('lh-sacc', lh_sacc_graph, {})
+    
+    var ll_arr_graph = {{cond_plots['ll']['array']['data'] | safe}};
+    var ll_sacc_graph = {{cond_plots['ll']['saccade']['data'] | safe}};
+    Plotly.plot('ll-array', ll_arr_graph, {})
+    Plotly.plot('ll-sacc', ll_sacc_graph, {})
+    
+</script>
+<script src="{{ url_for('static', filename='js/app.js') }}"></script>
+</html>
