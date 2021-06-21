@@ -17,6 +17,7 @@ import json
 
 # Start app and clear session
 app = Flask(__name__)
+app.secret_key = 'secret2345'    
 
 # Open Mongo connection, starting with Guest
 db = MongoConnect('guest','guest')
@@ -199,5 +200,4 @@ def update_plots():
 
 # Run the app
 if __name__ == '__main__':
-    app.secret_key = 'secret2345'
-    app.run(debug=True)
+    app.run(debug=False)
