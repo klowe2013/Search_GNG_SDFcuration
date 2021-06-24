@@ -3,8 +3,8 @@ from flask.helpers import url_for
 import numpy as np
 import pickle
 import hashlib
-from utils.mongoUtils import MongoConnect, PullNHPs, PullSess, PullUnits, SpikesFromDB, MongoLogin
-from utils.plotUtils import PlotConds, PltMeanStd
+from utils.mongoUtils import MongoConnect, PullNHPs, PullSess, PullUnits, SpikesFromDB, MongoLogin, AllSDFs
+from utils.plotUtils import PlotConds, PltMeanStd, PlotPop
 
 # Plotting imports
 import plotly
@@ -36,6 +36,10 @@ for i, v in enumerate(plot_conds):
 # Initialize SST dict
 sst_dict = {}
 
+##############################
+###### PAGES SECTION ######
+##############################
+
 # Route for landing page
 @app.route('/')
 def landing():
@@ -57,25 +61,6 @@ def login_page():
         return redirect(url_for('landing'))
     return render_template('login.html')    
         
-# Callback for login handling
-@app.route('/login-cb', methods=['POST','GET'])
-def login_callback():
-    if request.args.get('buttonState') == 'Logout':
-        is_auth = False
-        session['is_auth'] = False
-        session['user'] = 'none'
-    else:
-        uName = request.args.get('username')
-        password_candidate = request.args.get('pwd')
-        is_auth = session.get('is_auth')
-        if is_auth is False or is_auth is None:
-            is_auth = MongoLogin(db, uName, password_candidate)
-            session['is_auth'] = is_auth
-            if is_auth:
-                session['user'] = uName
-        
-    return jsonify({'isAuth': is_auth})
-
 
 # Route for checking individual SSTs
 @app.route('/single-sst')
@@ -119,6 +104,57 @@ def single_sst():
                            sessions = sess_list,
                            units = unit_list,
                            logged_in = session['is_auth'])
+    
+
+# Page for looking at group averages
+@app.route('/group-averages')
+def group_averages():
+    # First, we need to pull the units
+    pop_sdfs, unit_nhps = AllSDFs(sdf_coll, session['is_auth'])
+    
+    # Now generate the plots
+    for ic, cond in enumerate(plot_conds):
+        # Array plots
+        tmp_fig = PlotPop(pop_sdfs['Vis'], cond)
+        PlotPop(pop_sdfs['Vis'], cond[0]+'0', fig=tmp_fig)
+        tmp_fig.update_layout(xaxis_range=[-100,400], width=600, height=400,spikedistance=-1,hovermode='x unified')
+        my_figs[cond]['array']['data'] = json.dumps(tmp_fig, cls=plotly.utils.PlotlyJSONEncoder)
+        my_figs[cond]['array']['id'] = '{}-array'.format(cond)
+        
+        # Saccade plots
+        tmp_fig = PlotPop(pop_sdfs['Mov'], cond)
+        tmp_fig.update_layout(xaxis_range=[-250,250], width=600, height=400,spikedistance=-1,hovermode='x unified')
+        my_figs[cond]['saccade']['data'] = json.dumps(tmp_fig, cls=plotly.utils.PlotlyJSONEncoder)
+        my_figs[cond]['saccade']['id'] = '{}-sacc'.format(cond)
+    
+    return render_template('population_sst.html', 
+                           cond_plots = my_figs,
+                           logged_in = session['is_auth'])
+    
+    
+
+##############################
+###### CALLBACK SECTION ######
+##############################
+
+# Callback for login handling
+@app.route('/login-cb', methods=['POST','GET'])
+def login_callback():
+    if request.args.get('buttonState') == 'Logout':
+        is_auth = False
+        session['is_auth'] = False
+        session['user'] = 'none'
+    else:
+        uName = request.args.get('username')
+        password_candidate = request.args.get('pwd')
+        is_auth = session.get('is_auth')
+        if is_auth is False or is_auth is None:
+            is_auth = MongoLogin(db, uName, password_candidate)
+            session['is_auth'] = is_auth
+            if is_auth:
+                session['user'] = uName
+        
+    return jsonify({'isAuth': is_auth})
 
 
 # Callback for updating session list when NHP is changed

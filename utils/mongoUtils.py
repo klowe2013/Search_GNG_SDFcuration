@@ -70,6 +70,57 @@ def SpikesFromDB(sess, unit, coll):
     return v_dict, v_dict_sem, m_dict, m_dict_sem
 
 
+def AllSDFs(coll, auth):
+    
+    import pickle
+    import numpy as np
+    
+    query = {}
+    
+    if not auth:
+        query['GuestAccess'] = True
+    
+    docs = coll.find(query) # Later, we'll add a 'Good' field so we can pull just the good units, or use a rating scale. For now, pull all
+    n_docs = coll.count_documents(query)
+    
+    # Initialize Outputs
+    my_conds = ['HH','HL','LH','LL','H0','L0']
+    all_sdfs = {'Vis': {}, 'Mov': {}}
+    all_times = {}
+    nhp = []
+    for ic, cond in enumerate(my_conds):
+        all_sdfs['Vis'][cond] = {}
+        all_sdfs['Mov'][cond] = {}
+        all_sdfs['Vis'][cond]['in'] = [[] for i in range(n_docs)]
+        all_sdfs['Vis'][cond]['out'] = [[] for i in range(n_docs)]
+        if cond[1] is not '0': # For now there are no Mov aligned NOGO trials
+            all_sdfs['Mov'][cond]['in'] = [[] for i in range(n_docs)]
+            all_sdfs['Mov'][cond]['out'] = [[] for i in range(n_docs)]
+            
+    for id, doc in enumerate(docs):
+        for ic, cond in enumerate(my_conds):
+            all_sdfs['Vis'][cond]['in'][id] = pickle.loads(doc[cond]['InV'])
+            all_sdfs['Vis'][cond]['out'][id] = pickle.loads(doc[cond]['OutV'])
+            if cond[1] is not '0': # For now there are no Mov aligned NOGO trials
+                all_sdfs['Mov'][cond]['in'][id] = pickle.loads(doc[cond]['InM'])
+                all_sdfs['Mov'][cond]['out'][id] = pickle.loads(doc[cond]['OutM'])
+        if id==0:
+            all_sdfs['Vis']['Times'] = pickle.loads(doc['vTimes'])
+            all_sdfs['Mov']['Times'] = pickle.loads(doc['mTimes'])
+            
+        nhp.append(doc['NHP'])
+    
+    # Now convert to np arrays
+    for ic, cond in enumerate(my_conds):
+        all_sdfs['Vis'][cond]['in'] = np.array(all_sdfs['Vis'][cond]['in'])
+        all_sdfs['Vis'][cond]['out'] = np.array(all_sdfs['Vis'][cond]['out'])
+        if cond[1] is not '0':
+            all_sdfs['Mov'][cond]['in'] = np.array(all_sdfs['Mov'][cond]['in'])
+            all_sdfs['Mov'][cond]['out'] = np.array(all_sdfs['Mov'][cond]['out'])
+    
+    return all_sdfs, nhp
+        
+
 def MongoLogin(db, user_in, pass_in):
     import hashlib
 
