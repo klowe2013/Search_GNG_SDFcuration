@@ -44,7 +44,7 @@ def PullUnits(coll, my_sess, is_auth):
     return nhp_sess
 
 
-def SpikesFromDB(sess, unit, coll):
+def SpikesFromDB(sess, unit, coll, user=None):
     
     import pickle
 
@@ -67,7 +67,12 @@ def SpikesFromDB(sess, unit, coll):
     m_dict['t'] = pickle.loads(doc['mTimes'])        
     m_dict_sem['t'] = pickle.loads(doc['mTimes'])        
     
-    return v_dict, v_dict_sem, m_dict, m_dict_sem
+    if user is None:
+        sst_dict = {}
+    else:
+        sst_dict = doc['ManualTimes_'+user]
+    
+    return v_dict, v_dict_sem, m_dict, m_dict_sem, sst_dict
 
 
 def AllSDFs(coll, auth):

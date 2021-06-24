@@ -80,3 +80,44 @@ def PlotPop(pop_sdfs, cond, show_in=True, show_out=True, fig=None):
                    fig=fig, color=colors[cond], width=OUT_WIDTH, name=cond.upper()+' OUT')
     
     return fig
+
+
+def GetYRange(fig):
+    fig_data = fig.data
+    
+    min_y = min(min(list(map(lambda x: min(x.y), fig_data))),0.)
+    max_y = max(list(map(lambda x: max(x.y), fig_data)))
+    range_y = max_y-min_y
+    
+    return [min_y-(.05*range_y), max_y+(.05*range_y)]
+
+
+def AddVLine(fig, cond, sst_dict, mov=False):
+    # Define selection types
+    sel_types = ['sst','cdt','msst']
+    sel_colors = {'sst': 'rgb(54,201,54)', 'cdt': 'rgb(54, 201, 201)', 'ngsst': 'rgb(230, 147, 23)', 'outcdt': 'rgb(201, 201, 54)', 'unk': 'rgb(0,0,0)'};
+    # Get Y lim
+    y_range = GetYRange(fig)
+    
+    for it, type in enumerate(sel_types):
+        if type[0]=='m' and mov==False:
+            continue
+        if type[0]!='m' and mov==True:
+            continue
+        if type in sst_dict.keys() and cond in sst_dict[type].keys():
+            these_ssts = sst_dict[type][cond]
+            print(these_ssts)
+            for ii in range(len(these_ssts)):
+                t_val = these_ssts[ii]
+                try:
+                    print('t_val for {} is {}'.format(cond,int(t_val)))
+                    fig.add_trace(go.Scatter(
+                    x=[int(t_val),int(t_val)],
+                    y=y_range,
+                    line=dict(color=sel_colors[type], width=1)
+                    ))
+                except:
+                    pass
+    fig.update_layout(yaxis_range=y_range)
+    
+    return fig
