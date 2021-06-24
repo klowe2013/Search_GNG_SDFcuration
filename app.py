@@ -1,19 +1,19 @@
 # General imports
-from flask.helpers import url_for
 import numpy as np
 import pickle
 import hashlib
-from utils.mongoUtils import MongoConnect, PullNHPs, PullSess, PullUnits, SpikesFromDB, MongoLogin, AllSDFs
+import json
+import os
+from utils.mongoUtils import MongoConnect, PullNHPs, PullSess, PullUnits, SpikesFromDB, MongoLogin, AllSDFs, UpdateUnit
 from utils.plotUtils import PlotConds, PltMeanStd, PlotPop
 
 # Plotting imports
 import plotly
 import plotly.graph_objects as go
-import json
 
 # Flask imports
 from flask import Flask, render_template, request, jsonify, session, redirect
-import json
+from flask.helpers import url_for
 
 # Start app and clear session
 app = Flask(__name__)
@@ -205,11 +205,11 @@ def sst_click_parse():
         sst_dict[session['session']] = {}
     if session['unit'] not in sst_dict[session['session']].keys():
         sst_dict[session['session']][session['unit']] = {}
-    if plot_label not in sst_dict[session['session']][session['unit']].keys():
-        sst_dict[session['session']][session['unit']][plot_label] = {}
-    if sel_type not in sst_dict[session['session']][session['unit']][plot_label].keys():
-        sst_dict[session['session']][session['unit']][plot_label][sel_type] = []
-    sst_dict[session['session']][session['unit']][plot_label][sel_type].append(click_sst)
+    if sel_type not in sst_dict[session['session']][session['unit']].keys():
+        sst_dict[session['session']][session['unit']][sel_type] = {}
+    if plot_label not in sst_dict[session['session']][session['unit']][sel_type].keys():
+        sst_dict[session['session']][session['unit']][sel_type][plot_label] = []
+    sst_dict[session['session']][session['unit']][sel_type][plot_label].append(click_sst)
     
     return jsonify({'success': True})
 
@@ -219,6 +219,29 @@ def sst_submit():
     print('Submitting SSTs...')
     print(sst_dict)
     
+    # Save for backup security
+    from random import randint
+    f_name = './tmp_dict_{}.json'.format(randint(0,1000000))
+    with open(f_name,'w') as w:
+        json.dump(sst_dict,w)
+    
+    # Now we can do the real update
+    all_sess = sst_dict.keys()
+    n_tot = 0
+    n_complete = 0
+    for i, sess in enumerate(all_sess):
+        sess_units = sst_dict[sess].keys()
+        for iu, unit in enumerate(sess_units):
+            n_tot += 1
+            update_dict = {}
+            update_dict['ManualTimes_'+session['user']] = sst_dict[sess][unit]
+            update_success = UpdateUnit(sdf_coll, sess, unit, update_dict)
+            if update_success:
+                n_complete += 1
+                print('Unable to update unit {} from session {}'.format(unit,sess))
+    if n_tot == n_complete:
+        os.remove(f_name)
+        
     return jsonify({'success': True})
 
 

@@ -135,3 +135,14 @@ def MongoLogin(db, user_in, pass_in):
             is_auth = True
             
     return is_auth    
+
+
+def UpdateUnit(coll, sess, unit, update):
+    query = {'Session': sess, 'Unit': unit}
+    # Now do the update
+    success = True
+    try:
+        coll.update_one(query, {"$set": update})
+    except:
+        success = False
+    return success
