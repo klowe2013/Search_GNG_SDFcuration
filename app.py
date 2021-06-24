@@ -36,13 +36,58 @@ for i, v in enumerate(plot_conds):
 # Initialize SST dict
 sst_dict = {}
 
-# Base directory    
+# Route for landing page
 @app.route('/')
-def root():
-    # Initialize session with is_auth to False
-    session['is_auth'] = False
-    session['user'] = 'none'
+def landing():
+    # Check if logged in, otherwise redirect to login page
+    is_auth = session.get('is_auth')
+    if is_auth is False or is_auth is None:
+        print('About to redirect')
+        return redirect(url_for('login_page'))
     
+    return render_template('home.html',
+                           user=session['user'])
+
+
+# Route for login page
+@app.route('/login', methods=['POST','GET'])
+def login_page():
+    is_auth = session.get('is_auth')
+    if is_auth:
+        return redirect(url_for('landing'))
+    return render_template('login.html')    
+        
+# Callback for login handling
+@app.route('/login-cb', methods=['POST','GET'])
+def login_callback():
+    if request.args.get('buttonState') == 'Logout':
+        is_auth = False
+        session['is_auth'] = False
+        session['user'] = 'none'
+    else:
+        uName = request.args.get('username')
+        password_candidate = request.args.get('pwd')
+        is_auth = session.get('is_auth')
+        if is_auth is False or is_auth is None:
+            is_auth = MongoLogin(db, uName, password_candidate)
+            session['is_auth'] = is_auth
+            if is_auth:
+                session['user'] = uName
+        
+    return jsonify({'isAuth': is_auth})
+
+
+# Route for checking individual SSTs
+@app.route('/single-sst')
+def single_sst():
+    # Initialize session with is_auth to False
+    #session['is_auth'] = False
+    #session['user'] = 'none'
+    # Check if logged in, otherwise redirect to login page
+    is_auth = session.get('is_auth')
+    if is_auth is False or is_auth is None:
+        session['user'] = 'none'
+        
     # Make list of NHPs
     nhp_list = PullNHPs(sdf_coll, session['is_auth'])
     sess_list = PullSess(sdf_coll, nhp_list[0], session['is_auth'])
@@ -68,32 +113,12 @@ def root():
         my_figs[cond]['saccade']['data'] = json.dumps(tmp_fig, cls=plotly.utils.PlotlyJSONEncoder)
         my_figs[cond]['saccade']['id'] = '{}-sacc'.format(cond)
     
-    return render_template('home.html', 
+    return render_template('single_sst.html', 
                            cond_plots = my_figs,
                            nhps = nhp_list,
                            sessions = sess_list,
                            units = unit_list,
                            logged_in = session['is_auth'])
-
-
-# Callback for login handling
-@app.route('/login-cb', methods=['POST','GET'])
-def login_callback():
-    if request.args.get('buttonState') == 'Logout':
-        is_auth = False
-        session['is_auth'] = False
-        session['user'] = 'none'
-    else:
-        uName = request.args.get('username')
-        password_candidate = request.args.get('pwd')
-        is_auth = session.get('is_auth')
-        if is_auth is False or is_auth is None:
-            is_auth = MongoLogin(db, uName, password_candidate)
-            session['is_auth'] = is_auth
-            if is_auth:
-                session['user'] = uName
-        
-    return jsonify({'isAuth': is_auth})
 
 
 # Callback for updating session list when NHP is changed
@@ -200,4 +225,4 @@ def update_plots():
 
 # Run the app
 if __name__ == '__main__':
-    app.run(debug=False)
+    app.run(debug=True)
