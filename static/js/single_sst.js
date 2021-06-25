@@ -187,7 +187,7 @@ function submitSSTs(){
 }
 
 // When unit changes we don't want to automatically reload, but when "Update" is sent we do want to re-pull the plots
-function updatePlots(){
+function updateSessPlots(){
     // Get the current state of the session and units (NHP isn't necessary because it's redundant with session)
     const sessValue = document.getElementById('sess-dropdown').value
     const unitValue = document.getElementById('unit-dropdown').value

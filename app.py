@@ -101,7 +101,7 @@ def single_sst():
         tmp_fig.update_layout(xaxis_range=[-250,250], width=600, height=400,spikedistance=-1,hovermode='x unified')
         my_figs[cond]['saccade']['data'] = json.dumps(tmp_fig, cls=plotly.utils.PlotlyJSONEncoder)
         my_figs[cond]['saccade']['id'] = '{}-sacc'.format(cond)
-    
+        
     return render_template('single_sst.html', 
                            cond_plots = my_figs,
                            nhps = nhp_list,
@@ -114,10 +114,11 @@ def single_sst():
 @app.route('/group-averages')
 def group_averages():
     # First, we need to pull the units
-    pop_sdfs, unit_nhps = AllSDFs(sdf_coll, session['is_auth'])
+    # pop_sdfs, unit_nhps = AllSDFs(sdf_coll, session['is_auth'])
     
     # Now generate the plots
     for ic, cond in enumerate(plot_conds):
+        '''
         # Array plots
         tmp_fig = PlotPop(pop_sdfs['Vis'], cond)
         PlotPop(pop_sdfs['Vis'], cond[0]+'0', fig=tmp_fig)
@@ -130,7 +131,12 @@ def group_averages():
         tmp_fig.update_layout(xaxis_range=[-250,250], width=600, height=400,spikedistance=-1,hovermode='x unified')
         my_figs[cond]['saccade']['data'] = json.dumps(tmp_fig, cls=plotly.utils.PlotlyJSONEncoder)
         my_figs[cond]['saccade']['id'] = '{}-sacc'.format(cond)
-    
+        '''
+        my_figs[cond]['array']['data'] = json.dumps(go.Figure(), cls=plotly.utils.PlotlyJSONEncoder)
+        my_figs[cond]['array']['id'] = '{}-array'.format(cond)
+        my_figs[cond]['saccade']['data'] = json.dumps(go.Figure(), cls=plotly.utils.PlotlyJSONEncoder)
+        my_figs[cond]['saccade']['id'] = '{}-sacc'.format(cond)
+        
     return render_template('population_sst.html', 
                            cond_plots = my_figs,
                            logged_in = session['is_auth'])
@@ -284,6 +290,33 @@ def update_plots():
     else:
         return {'refresh': False}
     
+    
+@app.route('/get-pop-plots', methods=['POST','GET'])
+def get_pop_plots():
+    arr_x_min = request.args.get('aMinX')
+    arr_x_max = request.args.get('aMaxX')
+    sacc_x_min = request.args.get('sMinX')
+    sacc_x_max = request.args.get('sMaxX')
+    
+    # Pull the population data
+    pop_sdfs, unit_nhps = AllSDFs(sdf_coll, session['is_auth'])
+    # Now generate the plots
+    for ic, cond in enumerate(plot_conds):
+        # Array plots
+        tmp_fig = PlotPop(pop_sdfs['Vis'], cond)
+        PlotPop(pop_sdfs['Vis'], cond[0]+'0', fig=tmp_fig)
+        tmp_fig.update_layout(xaxis_range=[-100,400], width=600, height=400,spikedistance=-1,hovermode='x unified')
+        my_figs[cond]['array']['data'] = json.dumps(tmp_fig, cls=plotly.utils.PlotlyJSONEncoder)
+        my_figs[cond]['array']['id'] = '{}-array'.format(cond)
+        
+        # Saccade plots
+        tmp_fig = PlotPop(pop_sdfs['Mov'], cond)
+        tmp_fig.update_layout(xaxis_range=[-250,250], width=600, height=400,spikedistance=-1,hovermode='x unified')
+        my_figs[cond]['saccade']['data'] = json.dumps(tmp_fig, cls=plotly.utils.PlotlyJSONEncoder)
+        my_figs[cond]['saccade']['id'] = '{}-sacc'.format(cond)
+        
+    return my_figs
+
 
 # Run the app
 if __name__ == '__main__':

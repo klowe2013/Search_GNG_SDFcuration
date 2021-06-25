@@ -6,65 +6,68 @@ function hideUnchecked(){
     const inNgCheck = document.getElementById("in-ng").checked;
     const outNgCheck = document.getElementById("out-ng").checked;
 
+    updateButton.value = 'Fixing conditions...'
     //const checkNames = ['in-go','out-go','in-ng','out-ng']
-
-    // Loop over array plots
-    var ia, i;
-    let thisPlot;
-    let visIndices = []
-    let invisIndices = []
-    for (ia=0; ia < arrNames.length; ia++){
-        thisPlot = document.getElementById(arrNames[ia]);
-        visIndices = []
-        invisIndices = []
-        // Loop through children of this plot
-        for (i=0; i < thisPlot.data.length; i++){
-            if (Object.keys(thisPlot.data[i]).includes('type')){
-                // Check if this is "in-go"
-                if (thisPlot.data[i].name[1] !== '0' && thisPlot.data[i].name[3] === 'I'){
-                    // Check if "in-go" is checked
-                    if (inGoCheck && (!thisPlot.data[i].visible || typeof thisPlot.data[i].visible === 'undefined')){
-                        visIndices.push(i)
-                    } else if (!inGoCheck && (thisPlot.data[i].visible || typeof thisPlot.data[i].visible === 'undefined')){
-                        invisIndices.push(i)
+    return new Promise( (resolve, reject) => {
+        // Loop over array plots
+        var ia, i;
+        let thisPlot;
+        let visIndices = []
+        let invisIndices = []
+        for (ia=0; ia < arrNames.length; ia++){
+            thisPlot = document.getElementById(arrNames[ia]);
+            visIndices = []
+            invisIndices = []
+            // Loop through children of this plot
+            for (i=0; i < thisPlot.data.length; i++){
+                if (Object.keys(thisPlot.data[i]).includes('type')){
+                    // Check if this is "in-go"
+                    if (thisPlot.data[i].name[1] !== '0' && thisPlot.data[i].name[3] === 'I'){
+                        // Check if "in-go" is checked
+                        if (inGoCheck && (!thisPlot.data[i].visible || typeof thisPlot.data[i].visible === 'undefined')){
+                            visIndices.push(i)
+                        } else if (!inGoCheck && (thisPlot.data[i].visible || typeof thisPlot.data[i].visible === 'undefined')){
+                            invisIndices.push(i)
+                        }
                     }
-                }
-                // Check if this is "out-go"
-                if (thisPlot.data[i].name[1] !== '0' && thisPlot.data[i].name[3] === 'O'){
-                    // Check if "out-go" is checked
-                    if (outGoCheck && (!thisPlot.data[i].visible || typeof thisPlot.data[i].visible === 'undefined')){
-                        visIndices.push(i)
-                    } else if (!outGoCheck && (thisPlot.data[i].visible || typeof thisPlot.data[i].visible === 'undefined')){
-                        invisIndices.push(i)
+                    // Check if this is "out-go"
+                    if (thisPlot.data[i].name[1] !== '0' && thisPlot.data[i].name[3] === 'O'){
+                        // Check if "out-go" is checked
+                        if (outGoCheck && (!thisPlot.data[i].visible || typeof thisPlot.data[i].visible === 'undefined')){
+                            visIndices.push(i)
+                        } else if (!outGoCheck && (thisPlot.data[i].visible || typeof thisPlot.data[i].visible === 'undefined')){
+                            invisIndices.push(i)
+                        }
                     }
-                }
-                // Check if this is "in-no-go"
-                if (thisPlot.data[i].name[1] === '0' && thisPlot.data[i].name[3] === 'I'){
-                    // Check if "out-go" is checked
-                    if (inNgCheck && (!thisPlot.data[i].visible || typeof thisPlot.data[i].visible === 'undefined')){
-                        visIndices.push(i)
-                    } else if (!inNgCheck && (thisPlot.data[i].visible || typeof thisPlot.data[i].visible === 'undefined')){
-                        invisIndices.push(i)
+                    // Check if this is "in-no-go"
+                    if (thisPlot.data[i].name[1] === '0' && thisPlot.data[i].name[3] === 'I'){
+                        // Check if "out-go" is checked
+                        if (inNgCheck && (!thisPlot.data[i].visible || typeof thisPlot.data[i].visible === 'undefined')){
+                            visIndices.push(i)
+                        } else if (!inNgCheck && (thisPlot.data[i].visible || typeof thisPlot.data[i].visible === 'undefined')){
+                            invisIndices.push(i)
+                        }
                     }
-                }
-                // Check if this is "out-no-go"
-                if (thisPlot.data[i].name[1] === '0' && thisPlot.data[i].name[3] === 'O'){
-                    // Check if "out-go" is checked
-                    if (outNgCheck && (!thisPlot.data[i].visible || typeof thisPlot.data[i].visible === 'undefined')){
-                        visIndices.push(i)
-                    } else if (!outNgCheck && (thisPlot.data[i].visible || typeof thisPlot.data[i].visible === 'undefined')){
-                        invisIndices.push(i)
+                    // Check if this is "out-no-go"
+                    if (thisPlot.data[i].name[1] === '0' && thisPlot.data[i].name[3] === 'O'){
+                        // Check if "out-go" is checked
+                        if (outNgCheck && (!thisPlot.data[i].visible || typeof thisPlot.data[i].visible === 'undefined')){
+                            visIndices.push(i)
+                        } else if (!outNgCheck && (thisPlot.data[i].visible || typeof thisPlot.data[i].visible === 'undefined')){
+                            invisIndices.push(i)
+                        }
                     }
                 }
             }
+            if (visIndices.length > 0){
+                Plotly.restyle(thisPlot, {'visible': true}, visIndices);
+            }
+            if (invisIndices.length > 0){
+                Plotly.restyle(thisPlot, {'visible': false}, invisIndices);
+            }
         }
-        if (visIndices.length > 0){
-            Plotly.restyle(thisPlot, {'visible': true}, visIndices);
-        }
-        if (invisIndices.length > 0){
-            Plotly.restyle(thisPlot, {'visible': false}, invisIndices);
-        }
-    }
+        resolve();
+    })
 }
 
 function updateClickEvents(){
@@ -102,30 +105,51 @@ function submitSSTs(){
 }
 
 // When unit changes we don't want to automatically reload, but when "Update" is sent we do want to re-pull the plots
-function updatePlots(){
+function updatePopPlots(rePull){
     // Get the current state of the session and units (NHP isn't necessary because it's redundant with session)
     const aMinX = document.getElementById('array_xmin_state').value
     const aMaxX = document.getElementById('array_xmax_state').value
     const sMinX = document.getElementById('sacc_xmin_state').value
     const sMaxX = document.getElementById('sacc_xmax_state').value
 
-    const updateButton = document.getElementById('plots_update');
-    updateButton.value = 'Fixing Axes...'
+    return new Promise( (resolve, reject) => {
+        if (rePull) {
+            updateButton.value = 'Requesting data...'
+            $.getJSON({
+                url: "/get-pop-plots", data: {'aMinX': aMinX, 'aMaxX': aMaxX, 'sMinX': sMinX, 'sMaxX': sMaxX}, success: (res) => {
+                    var keys = Object.keys(res);
+                    updateButton.value = 'Parsing Input...';
+                    var i;
+                    for (i=0; i < keys.length; i++){
+                        var arrGraphs = JSON.parse(res[keys[i]].array.data);
+                        var saccGraphs = JSON.parse(res[keys[i]].saccade.data);
+                        Plotly.react(res[keys[i]].array.id, arrGraphs, {});  
+                        Plotly.react(res[keys[i]].saccade.id, saccGraphs, {});  
+                    }
+                    resolve();
+                }
+            });
+        } else {
+            updateButton.value = 'Fixing Axes...'
+            let arrUpdate = {'xaxis.range': [aMinX, aMaxX]};
+            let saccUpdate = {'xaxis.range': [sMinX, sMaxX]};
+            const arrPlots = Array.from(document.getElementsByClassName('arr-plot'))
+            arrPlots.forEach((item) => {
+                Plotly.relayout(item, arrUpdate);
+            })
+            const saccPlots = Array.from(document.getElementsByClassName('sacc-plot'))
+            saccPlots.forEach((item) => {
+                Plotly.relayout(item, saccUpdate);
+            })
+            //updateButton.value = 'Fixing Traces...';
+            resolve();
+        }
+        
+    })
     
-    let arrUpdate = {'xaxis.range': [aMinX, aMaxX]};
-    let saccUpdate = {'xaxis.range': [sMinX, sMaxX]};
-
-    const arrPlots = Array.from(document.getElementsByClassName('arr-plot'))
-    arrPlots.forEach((item) => {
-        Plotly.relayout(item, arrUpdate);
-    })
-    const saccPlots = Array.from(document.getElementsByClassName('sacc-plot'))
-    saccPlots.forEach((item) => {
-        Plotly.relayout(item, saccUpdate);
-    })
-    updateButton.value = 'Fixing Traces...';
-    hideUnchecked();
-    updateButton.value = 'Update';
+    
+    //hideUnchecked();
+    //updateButton.value = 'Update';
 }
 
 function inferSelection(){
@@ -150,10 +174,23 @@ function inferSelection(){
     return selType;
 }
 
+// Attach update function to page load
+window.onload = () => {
+    updatePopPlots(true).then(()=>{
+        hideUnchecked().then(() => updateButton.value = 'Update')
+    })
+}
+
 // Set global variables
 const arrNames = ["hh-array", "hl-array", "lh-array", "ll-array","hh-sacc", "hl-sacc", "lh-sacc", "ll-sacc"];
 const selTypeColors = {'sst': 'rgb(54,201,54)', 'cdt': 'rgb(54, 201, 201)', 'ngsst': 'rgb(230, 147, 23)', 'outcdt': 'rgb(201, 201, 54)', 'unk': 'rgb(0,0,0)'};
+const updateButton = document.getElementById('plots_update');
+updateButton.addEventListener('click', () => {
+    updatePopPlots(false).then(()=>{
+        hideUnchecked().then(() => updateButton.value = 'Update')
+    })
+})    
 
 // Hide initially unchecked values
-hideUnchecked();
+//hideUnchecked();
 updateClickEvents();
