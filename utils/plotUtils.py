@@ -110,7 +110,6 @@ def AddVLine(fig, cond, sst_dict, mov=False):
                 these_ssts = [these_ssts]
             for ii, t_val in enumerate(these_ssts):
                 try:
-                    print('t_val for {} is {} (named {})'.format(cond,int(t_val),sel+'_'+str(ii)))
                     fig.add_trace(go.Scatter(
                     x=[int(t_val),int(t_val)],
                     y=y_range,

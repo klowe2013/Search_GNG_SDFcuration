@@ -7,7 +7,6 @@ function hideUnchecked(){
     const outNgCheck = document.getElementById("out-ng").checked;
 
     updateButton.value = 'Fixing conditions...'
-    //const checkNames = ['in-go','out-go','in-ng','out-ng']
     return new Promise( (resolve, reject) => {
         // Loop over array plots
         var ia, i;

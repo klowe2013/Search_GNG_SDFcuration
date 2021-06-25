@@ -247,16 +247,59 @@ function inferSelection(){
     } else if (!inGoChecked && !outGoChecked && inNgChecked && outNgChecked){
         selType = 'ngsst';
     } else if (!inGoChecked && outGoChecked && !inNgChecked && outNgChecked){
-        selType = 'outcdt';
+        selType = 'ocdt';
     } else{
         selType = 'unk';
     }
     return selType;
 }
 
+function clearSSTs(){
+    // Later we'll want to make this more dynamic (give options to clear...), but for now resetting all will work
+    const sessValue = document.getElementById('sess-dropdown').value
+    const unitValue = document.getElementById('unit-dropdown').value
+    
+    document.getElementById('sst_clear').value = 'Clearing SSTs...'
+    
+    $.getJSON({
+        url: "/clear-sst-cb", data: {'sess': sessValue, 'unit': unitValue}, success: (res) => {
+            document.getElementById('sst_clear').value = 'Clear Selection Times'
+            const arrPlots = Array.from(document.getElementsByClassName('arr-plot'))
+            const saccPlots = Array.from(document.getElementsByClassName('sacc-plot'))
+            arrPlots.forEach((item) => {
+                // Item.data contains lines
+                let itemData = item.data;
+                // Pull line names from data
+                let names = itemData.map((line) => line.name);
+                let delTraces = []
+                names.forEach((o,i) => {
+                    if (selTypes.includes(o.slice(0,3))){
+                        delTraces.push(i)
+                    }
+                })
+                Plotly.deleteTraces(item,delTraces)
+            })
+            saccPlots.forEach((item) => {
+                // Item.data contains lines
+                let itemData = item.data;
+                // Pull line names from data
+                let names = itemData.map((line) => line.name);
+                let delTraces = []
+                names.forEach((o,i) => {
+                    if (selTypes.includes(o.slice(0,3))){
+                        delTraces.push(i)
+                    }
+                })
+                Plotly.deleteTraces(item,delTraces)
+            })
+        }
+    })
+}
+
 // Set global variables
 const arrNames = ["hh-array", "hl-array", "lh-array", "ll-array","hh-sacc", "hl-sacc", "lh-sacc", "ll-sacc"];
-const selTypeColors = {'sst': 'rgb(54,201,54)', 'cdt': 'rgb(54, 201, 201)', 'ngsst': 'rgb(230, 147, 23)', 'outcdt': 'rgb(201, 201, 54)', 'unk': 'rgb(0,0,0)'};
+const selTypeColors = {'sst': 'rgb(54,201,54)', 'cdt': 'rgb(54, 201, 201)', 'ngsst': 'rgb(230, 147, 23)', 'ocdt': 'rgb(201, 201, 54)', 'unk': 'rgb(0,0,0)'};
+const selTypes = ['sst','cdt','ngs','ocd','unk']
 
 // Add event listeners for NHP and Session dropdowns
 const nhpElement = document.getElementById('nhp-dropdown')

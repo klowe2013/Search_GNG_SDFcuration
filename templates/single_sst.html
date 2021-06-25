@@ -6,11 +6,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="https://codepen.io/chriddyp/pen/bWLwgP.css">
     <title>Interactive SDFs with Flask</title>
-    <style>
-        .scatterlayer .trace:last-child path {
-            pointer-events: all;
-        }
-    </style>
 </head>
 <body>
     <div>
@@ -91,7 +86,9 @@
     <input type="button" value="Update" id="plots_update" onclick="updateSessPlots()">
     <br>
     <input type="button" value="Submit SST" id="sst_submit" onclick="submitSSTs()">
-
+    <br>
+    <input type="button" value="Clear Selection Times" id="sst_clear" onclick="clearSSTs()">
+    
     <div id="hh-plots" class="row">
         <div class="four columns">
             <h4>HH, Array Aligned</h4>

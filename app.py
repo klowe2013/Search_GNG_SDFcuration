@@ -290,7 +290,8 @@ def update_plots():
     else:
         return {'refresh': False}
     
-    
+
+# Make the query to the database to get the population SDF values    
 @app.route('/get-pop-plots', methods=['POST','GET'])
 def get_pop_plots():
     arr_x_min = request.args.get('aMinX')
@@ -305,19 +306,32 @@ def get_pop_plots():
         # Array plots
         tmp_fig = PlotPop(pop_sdfs['Vis'], cond)
         PlotPop(pop_sdfs['Vis'], cond[0]+'0', fig=tmp_fig)
-        tmp_fig.update_layout(xaxis_range=[-100,400], width=600, height=400,spikedistance=-1,hovermode='x unified')
+        tmp_fig.update_layout(xaxis_range=[-arr_x_min,arr_x_max], width=600, height=400,spikedistance=-1,hovermode='x unified')
         my_figs[cond]['array']['data'] = json.dumps(tmp_fig, cls=plotly.utils.PlotlyJSONEncoder)
         my_figs[cond]['array']['id'] = '{}-array'.format(cond)
         
         # Saccade plots
         tmp_fig = PlotPop(pop_sdfs['Mov'], cond)
-        tmp_fig.update_layout(xaxis_range=[-250,250], width=600, height=400,spikedistance=-1,hovermode='x unified')
+        tmp_fig.update_layout(xaxis_range=[-sacc_x_min,sacc_x_max], width=600, height=400,spikedistance=-1,hovermode='x unified')
         my_figs[cond]['saccade']['data'] = json.dumps(tmp_fig, cls=plotly.utils.PlotlyJSONEncoder)
         my_figs[cond]['saccade']['id'] = '{}-sacc'.format(cond)
         
     return my_figs
 
 
-# Run the app
+# Request to clear sst_dict for the displayed unit
+@app.route('/clear-sst-cb', methods=['POST','GET'])
+def clear_ssts():
+    this_sess = request.args.get('sess')
+    this_unit = request.args.get('unit')
+    
+    print(sst_dict[this_sess][this_unit])
+    sst_dict[this_sess][this_unit] = {}
+    print(sst_dict)
+    
+    return jsonify({'success': True})
+
+    
+# Run the appP
 if __name__ == '__main__':
     app.run(debug=True)
