@@ -98,15 +98,6 @@ function hideUnchecked(){
         // Loop through children of this plot
         for (i=0; i < thisPlot.data.length; i++){
             if (Object.keys(thisPlot.data[i]).includes('type')){
-                // Check if this is "in-go"
-                if (thisPlot.data[i].name[1] !== '0' && thisPlot.data[i].name[3] === 'I'){
-                    // Check if "in-go" is checked
-                    if (inGoCheck && (!thisPlot.data[i].visible || typeof thisPlot.data[i].visible === 'undefined')){
-                        visIndices.push(i)
-                    } else if (!inGoCheck && (thisPlot.data[i].visible || typeof thisPlot.data[i].visible === 'undefined')){
-                        invisIndices.push(i)
-                    }
-                }
                 // Check if this is "out-go"
                 if (thisPlot.data[i].name[1] !== '0' && thisPlot.data[i].name[3] === 'O'){
                     // Check if "out-go" is checked
@@ -131,6 +122,22 @@ function hideUnchecked(){
                     if (outNgCheck && (!thisPlot.data[i].visible || typeof thisPlot.data[i].visible === 'undefined')){
                         visIndices.push(i)
                     } else if (!outNgCheck && (thisPlot.data[i].visible || typeof thisPlot.data[i].visible === 'undefined')){
+                        invisIndices.push(i)
+                    }
+                }
+                // If name is "sst", check if both "in-go" and "out-go" are checked
+                if (thisPlot.data[i].name.slice(0,3) === 'sst'){
+                    if (inGoCheck && outGoCheck && (!thisPlot.data[i].visible || typeof thisPlot.data[i].visible === 'undefined')){
+                        visIndices.push(i)
+                    } else if ((!inGoCheck || !outGoCheck ) && (thisPlot.data[i].visible ||  typeof thisPlot.data[i].visible === 'undefined')){
+                        invisIndices.push(i)
+                    }
+                }
+                // If name is "cdt", check if both "in-go" and "in-nogo" are checked
+                if (thisPlot.data[i].name.slice(0,3) === 'cdt'){
+                    if (inGoCheck && inNgCheck && (!thisPlot.data[i].visible || typeof thisPlot.data[i].visible === 'undefined')){
+                        visIndices.push(i)
+                    } else if ((!inGoCheck || !inNgCheck ) && (thisPlot.data[i].visible ||  typeof thisPlot.data[i].visible === 'undefined')){
                         invisIndices.push(i)
                     }
                 }

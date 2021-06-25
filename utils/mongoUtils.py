@@ -67,10 +67,10 @@ def SpikesFromDB(sess, unit, coll, user=None):
     m_dict['t'] = pickle.loads(doc['mTimes'])        
     m_dict_sem['t'] = pickle.loads(doc['mTimes'])        
     
-    if user is None:
-        sst_dict = {}
-    else:
+    if user is not None and 'ManualTimes_'+user in doc.keys():
         sst_dict = doc['ManualTimes_'+user]
+    else:
+        sst_dict = {}
     
     return v_dict, v_dict_sem, m_dict, m_dict_sem, sst_dict
 

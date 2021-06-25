@@ -46,7 +46,6 @@ def landing():
     # Check if logged in, otherwise redirect to login page
     is_auth = session.get('is_auth')
     if is_auth is False or is_auth is None:
-        print('About to redirect')
         return redirect(url_for('login_page'))
     
     return render_template('home.html',
@@ -82,7 +81,6 @@ def single_sst():
     v_dict, v_dict_sem, m_dict, m_dict_sem, unit_ssts = SpikesFromDB(sess_list[0], unit_list[0], sdf_coll, user=session['user'])
     session['session'] = sess_list[0]
     session['unit'] = unit_list[0]
-    print(unit_ssts)
     sst_dict[session['session']] = {session['unit']: unit_ssts}
     
     # Make array-aligned figures
@@ -178,7 +176,6 @@ def nhp_update_cb():
 # Callback for updating session list when NHP is changed
 @app.route('/sess-update-cb', methods=['POST','GET'])
 def sess_update_cb():
-    print('In session callback, state value is {}'.format(session['is_auth']))
     this_nhp = request.args.get('nhp')
     sess_list = PullSess(sdf_coll, this_nhp, session['is_auth'])
     
@@ -222,9 +219,6 @@ def sst_click_parse():
 
 @app.route('/sst-submit', methods=['POST','GET'])
 def sst_submit():
-    print('Submitting SSTs...')
-    print(sst_dict)
-    
     # Save for backup security
     from random import randint
     f_name = './tmp_dict_{}.json'.format(randint(0,1000000))
@@ -264,7 +258,6 @@ def update_plots():
     # This section should be used to prevent costly database queries, but it can't do that quite yet as v_dict etc. are local variables
     # Load spike/SDF values if the values are different
     if this_sess != session['session'] or this_unit != session['unit']:
-        print(session['user'])
         v_dict, v_dict_sem, m_dict, m_dict_sem, unit_ssts = SpikesFromDB(this_sess, this_unit, sdf_coll, user=session['user'])
         session['session'] = this_sess
         session['unit'] = this_unit

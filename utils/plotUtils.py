@@ -99,22 +99,24 @@ def AddVLine(fig, cond, sst_dict, mov=False):
     # Get Y lim
     y_range = GetYRange(fig)
     
-    for it, type in enumerate(sel_types):
-        if type[0]=='m' and mov==False:
+    for it, sel in enumerate(sel_types):
+        if sel[0]=='m' and mov==False:
             continue
-        if type[0]!='m' and mov==True:
+        if sel[0]!='m' and mov==True:
             continue
-        if type in sst_dict.keys() and cond in sst_dict[type].keys():
-            these_ssts = sst_dict[type][cond]
-            print(these_ssts)
-            for ii in range(len(these_ssts)):
-                t_val = these_ssts[ii]
+        if sel in sst_dict.keys() and cond in sst_dict[sel].keys():
+            these_ssts = sst_dict[sel][cond]
+            if type(these_ssts) is str:
+                these_ssts = [these_ssts]
+            for ii, t_val in enumerate(these_ssts):
                 try:
-                    print('t_val for {} is {}'.format(cond,int(t_val)))
+                    print('t_val for {} is {} (named {})'.format(cond,int(t_val),sel+'_'+str(ii)))
                     fig.add_trace(go.Scatter(
                     x=[int(t_val),int(t_val)],
                     y=y_range,
-                    line=dict(color=sel_colors[type], width=1)
+                    line=dict(color=sel_colors[sel]),
+                    name=sel+'_'+str(ii),
+                    visible=True
                     ))
                 except:
                     pass
