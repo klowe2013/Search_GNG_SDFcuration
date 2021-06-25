@@ -64,9 +64,6 @@ def login_page():
 # Route for checking individual SSTs
 @app.route('/single-sst')
 def single_sst():
-    # Initialize session with is_auth to False
-    #session['is_auth'] = False
-    #session['user'] = 'none'
     # Check if logged in, otherwise redirect to login page
     is_auth = session.get('is_auth')
     if is_auth is False or is_auth is None:
@@ -79,12 +76,13 @@ def single_sst():
 
     # Load initial spike/SDF values            
     v_dict, v_dict_sem, m_dict, m_dict_sem, unit_ssts = SpikesFromDB(sess_list[0], unit_list[0], sdf_coll, user=session['user'])
-    session['session'] = sess_list[0]
-    session['unit'] = unit_list[0]
-    sst_dict[session['session']] = {session['unit']: unit_ssts}
+    #session['session'] = sess_list[0]
+    #session['unit'] = unit_list[0]
+    #sst_dict[session['session']] = {session['unit']: unit_ssts}
     
     # Make array-aligned figures
     for ic, cond in enumerate(plot_conds):
+        '''
         # Array plots
         tmp_fig = PlotConds(v_dict, v_dict_sem, cond)
         PlotConds(v_dict, v_dict_sem, cond[0]+'0', fig=tmp_fig)
@@ -94,13 +92,19 @@ def single_sst():
         
         my_figs[cond]['array']['data'] = json.dumps(tmp_fig, cls=plotly.utils.PlotlyJSONEncoder)
         my_figs[cond]['array']['id'] = '{}-array'.format(cond)
-    
+        
         # Saccade plots
         tmp_fig = PlotConds(m_dict, m_dict_sem, cond)
         tmp_fig = AddVLine(tmp_fig, cond, unit_ssts,mov=True)
         tmp_fig.update_layout(xaxis_range=[-250,250], width=600, height=400,spikedistance=-1,hovermode='x unified')
         my_figs[cond]['saccade']['data'] = json.dumps(tmp_fig, cls=plotly.utils.PlotlyJSONEncoder)
         my_figs[cond]['saccade']['id'] = '{}-sacc'.format(cond)
+        '''
+        my_figs[cond]['array']['data'] = json.dumps(go.Figure(), cls=plotly.utils.PlotlyJSONEncoder)
+        my_figs[cond]['array']['id'] = '{}-array'.format(cond)
+        my_figs[cond]['saccade']['data'] = json.dumps(go.Figure(), cls=plotly.utils.PlotlyJSONEncoder)
+        my_figs[cond]['saccade']['id'] = '{}-sacc'.format(cond)
+        
         
     return render_template('single_sst.html', 
                            cond_plots = my_figs,
@@ -118,20 +122,6 @@ def group_averages():
     
     # Now generate the plots
     for ic, cond in enumerate(plot_conds):
-        '''
-        # Array plots
-        tmp_fig = PlotPop(pop_sdfs['Vis'], cond)
-        PlotPop(pop_sdfs['Vis'], cond[0]+'0', fig=tmp_fig)
-        tmp_fig.update_layout(xaxis_range=[-100,400], width=600, height=400,spikedistance=-1,hovermode='x unified')
-        my_figs[cond]['array']['data'] = json.dumps(tmp_fig, cls=plotly.utils.PlotlyJSONEncoder)
-        my_figs[cond]['array']['id'] = '{}-array'.format(cond)
-        
-        # Saccade plots
-        tmp_fig = PlotPop(pop_sdfs['Mov'], cond)
-        tmp_fig.update_layout(xaxis_range=[-250,250], width=600, height=400,spikedistance=-1,hovermode='x unified')
-        my_figs[cond]['saccade']['data'] = json.dumps(tmp_fig, cls=plotly.utils.PlotlyJSONEncoder)
-        my_figs[cond]['saccade']['id'] = '{}-sacc'.format(cond)
-        '''
         my_figs[cond]['array']['data'] = json.dumps(go.Figure(), cls=plotly.utils.PlotlyJSONEncoder)
         my_figs[cond]['array']['id'] = '{}-array'.format(cond)
         my_figs[cond]['saccade']['data'] = json.dumps(go.Figure(), cls=plotly.utils.PlotlyJSONEncoder)
@@ -260,10 +250,11 @@ def update_plots():
     arr_x_max = request.args.get('aMaxX')
     sacc_x_min = request.args.get('sMinX')
     sacc_x_max = request.args.get('sMaxX')
+    force_pull = request.args.get('forcePull')
     
     # This section should be used to prevent costly database queries, but it can't do that quite yet as v_dict etc. are local variables
     # Load spike/SDF values if the values are different
-    if this_sess != session['session'] or this_unit != session['unit']:
+    if this_sess != session['session'] or this_unit != session['unit'] or force_pull:
         v_dict, v_dict_sem, m_dict, m_dict_sem, unit_ssts = SpikesFromDB(this_sess, this_unit, sdf_coll, user=session['user'])
         session['session'] = this_sess
         session['unit'] = this_unit
@@ -306,13 +297,13 @@ def get_pop_plots():
         # Array plots
         tmp_fig = PlotPop(pop_sdfs['Vis'], cond)
         PlotPop(pop_sdfs['Vis'], cond[0]+'0', fig=tmp_fig)
-        tmp_fig.update_layout(xaxis_range=[-arr_x_min,arr_x_max], width=600, height=400,spikedistance=-1,hovermode='x unified')
+        tmp_fig.update_layout(xaxis_range=[arr_x_min,arr_x_max], width=600, height=400,spikedistance=-1,hovermode='x unified')
         my_figs[cond]['array']['data'] = json.dumps(tmp_fig, cls=plotly.utils.PlotlyJSONEncoder)
         my_figs[cond]['array']['id'] = '{}-array'.format(cond)
         
         # Saccade plots
         tmp_fig = PlotPop(pop_sdfs['Mov'], cond)
-        tmp_fig.update_layout(xaxis_range=[-sacc_x_min,sacc_x_max], width=600, height=400,spikedistance=-1,hovermode='x unified')
+        tmp_fig.update_layout(xaxis_range=[sacc_x_min,sacc_x_max], width=600, height=400,spikedistance=-1,hovermode='x unified')
         my_figs[cond]['saccade']['data'] = json.dumps(tmp_fig, cls=plotly.utils.PlotlyJSONEncoder)
         my_figs[cond]['saccade']['id'] = '{}-sacc'.format(cond)
         

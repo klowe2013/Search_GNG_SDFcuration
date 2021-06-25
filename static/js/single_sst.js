@@ -78,78 +78,81 @@ function updateUnitList(unitList){
 
 // Hide unchecked values
 function hideUnchecked(){
+    console.log('Entering hideUnchecked')
     // Get checked elements
     const inGoCheck = document.getElementById("in-go").checked;
     const outGoCheck = document.getElementById("out-go").checked;
     const inNgCheck = document.getElementById("in-ng").checked;
     const outNgCheck = document.getElementById("out-ng").checked;
 
-    //const checkNames = ['in-go','out-go','in-ng','out-ng']
-
-    // Loop over array plots
-    var ia, i;
-    let thisPlot;
-    let visIndices = []
-    let invisIndices = []
-    for (ia=0; ia < arrNames.length; ia++){
-        thisPlot = document.getElementById(arrNames[ia]);
-        visIndices = []
-        invisIndices = []
-        // Loop through children of this plot
-        for (i=0; i < thisPlot.data.length; i++){
-            if (Object.keys(thisPlot.data[i]).includes('type')){
-                // Check if this is "out-go"
-                if (thisPlot.data[i].name[1] !== '0' && thisPlot.data[i].name[3] === 'O'){
-                    // Check if "out-go" is checked
-                    if (outGoCheck && (!thisPlot.data[i].visible || typeof thisPlot.data[i].visible === 'undefined')){
-                        visIndices.push(i)
-                    } else if (!outGoCheck && (thisPlot.data[i].visible || typeof thisPlot.data[i].visible === 'undefined')){
-                        invisIndices.push(i)
+    updateButton.value = 'Fixing conditions...'
+    return new Promise((resolve, reject) => {
+        // Loop over array plots
+        var ia, i;
+        let thisPlot;
+        let visIndices = []
+        let invisIndices = []
+        for (ia=0; ia < arrNames.length; ia++){
+            thisPlot = document.getElementById(arrNames[ia]);
+            visIndices = []
+            invisIndices = []
+            // Loop through children of this plot
+            for (i=0; i < thisPlot.data.length; i++){
+                if (Object.keys(thisPlot.data[i]).includes('type')){
+                    // Check if this is "out-go"
+                    if (thisPlot.data[i].name[1] !== '0' && thisPlot.data[i].name[3] === 'O'){
+                        // Check if "out-go" is checked
+                        if (outGoCheck && (!thisPlot.data[i].visible || typeof thisPlot.data[i].visible === 'undefined')){
+                            visIndices.push(i)
+                        } else if (!outGoCheck && (thisPlot.data[i].visible || typeof thisPlot.data[i].visible === 'undefined')){
+                            invisIndices.push(i)
+                        }
                     }
-                }
-                // Check if this is "in-no-go"
-                if (thisPlot.data[i].name[1] === '0' && thisPlot.data[i].name[3] === 'I'){
-                    // Check if "out-go" is checked
-                    if (inNgCheck && (!thisPlot.data[i].visible || typeof thisPlot.data[i].visible === 'undefined')){
-                        visIndices.push(i)
-                    } else if (!inNgCheck && (thisPlot.data[i].visible || typeof thisPlot.data[i].visible === 'undefined')){
-                        invisIndices.push(i)
+                    // Check if this is "in-no-go"
+                    if (thisPlot.data[i].name[1] === '0' && thisPlot.data[i].name[3] === 'I'){
+                        // Check if "out-go" is checked
+                        if (inNgCheck && (!thisPlot.data[i].visible || typeof thisPlot.data[i].visible === 'undefined')){
+                            visIndices.push(i)
+                        } else if (!inNgCheck && (thisPlot.data[i].visible || typeof thisPlot.data[i].visible === 'undefined')){
+                            invisIndices.push(i)
+                        }
                     }
-                }
-                // Check if this is "out-no-go"
-                if (thisPlot.data[i].name[1] === '0' && thisPlot.data[i].name[3] === 'O'){
-                    // Check if "out-go" is checked
-                    if (outNgCheck && (!thisPlot.data[i].visible || typeof thisPlot.data[i].visible === 'undefined')){
-                        visIndices.push(i)
-                    } else if (!outNgCheck && (thisPlot.data[i].visible || typeof thisPlot.data[i].visible === 'undefined')){
-                        invisIndices.push(i)
+                    // Check if this is "out-no-go"
+                    if (thisPlot.data[i].name[1] === '0' && thisPlot.data[i].name[3] === 'O'){
+                        // Check if "out-go" is checked
+                        if (outNgCheck && (!thisPlot.data[i].visible || typeof thisPlot.data[i].visible === 'undefined')){
+                            visIndices.push(i)
+                        } else if (!outNgCheck && (thisPlot.data[i].visible || typeof thisPlot.data[i].visible === 'undefined')){
+                            invisIndices.push(i)
+                        }
                     }
-                }
-                // If name is "sst", check if both "in-go" and "out-go" are checked
-                if (thisPlot.data[i].name.slice(0,3) === 'sst'){
-                    if (inGoCheck && outGoCheck && (!thisPlot.data[i].visible || typeof thisPlot.data[i].visible === 'undefined')){
-                        visIndices.push(i)
-                    } else if ((!inGoCheck || !outGoCheck ) && (thisPlot.data[i].visible ||  typeof thisPlot.data[i].visible === 'undefined')){
-                        invisIndices.push(i)
+                    // If name is "sst", check if both "in-go" and "out-go" are checked
+                    if (thisPlot.data[i].name.slice(0,3) === 'sst'){
+                        if (inGoCheck && outGoCheck && (!thisPlot.data[i].visible || typeof thisPlot.data[i].visible === 'undefined')){
+                            visIndices.push(i)
+                        } else if ((!inGoCheck || !outGoCheck ) && (thisPlot.data[i].visible ||  typeof thisPlot.data[i].visible === 'undefined')){
+                            invisIndices.push(i)
+                        }
                     }
-                }
-                // If name is "cdt", check if both "in-go" and "in-nogo" are checked
-                if (thisPlot.data[i].name.slice(0,3) === 'cdt'){
-                    if (inGoCheck && inNgCheck && (!thisPlot.data[i].visible || typeof thisPlot.data[i].visible === 'undefined')){
-                        visIndices.push(i)
-                    } else if ((!inGoCheck || !inNgCheck ) && (thisPlot.data[i].visible ||  typeof thisPlot.data[i].visible === 'undefined')){
-                        invisIndices.push(i)
+                    // If name is "cdt", check if both "in-go" and "in-nogo" are checked
+                    if (thisPlot.data[i].name.slice(0,3) === 'cdt'){
+                        if (inGoCheck && inNgCheck && (!thisPlot.data[i].visible || typeof thisPlot.data[i].visible === 'undefined')){
+                            visIndices.push(i)
+                        } else if ((!inGoCheck || !inNgCheck ) && (thisPlot.data[i].visible ||  typeof thisPlot.data[i].visible === 'undefined')){
+                            invisIndices.push(i)
+                        }
                     }
                 }
             }
+            if (visIndices.length > 0){
+                Plotly.restyle(thisPlot, {'visible': true}, visIndices);
+            }
+            if (invisIndices.length > 0){
+                Plotly.restyle(thisPlot, {'visible': false}, invisIndices);
+            }
         }
-        if (visIndices.length > 0){
-            Plotly.restyle(thisPlot, {'visible': true}, visIndices);
-        }
-        if (invisIndices.length > 0){
-            Plotly.restyle(thisPlot, {'visible': false}, invisIndices);
-        }
-    }
+        resolve();
+    })    
 }
 
 function updateClickEvents(){
@@ -187,7 +190,7 @@ function submitSSTs(){
 }
 
 // When unit changes we don't want to automatically reload, but when "Update" is sent we do want to re-pull the plots
-function updateSessPlots(){
+function updateSessPlots(forcePull){
     // Get the current state of the session and units (NHP isn't necessary because it's redundant with session)
     const sessValue = document.getElementById('sess-dropdown').value
     const unitValue = document.getElementById('unit-dropdown').value
@@ -196,40 +199,41 @@ function updateSessPlots(){
     const sMinX = document.getElementById('sacc_xmin_state').value
     const sMaxX = document.getElementById('sacc_xmax_state').value
 
-    const updateButton = document.getElementById('plots_update');
-    updateButton.value = 'Requesting...'
-
-    $.getJSON({
-        url: "/plot-update-cb", data: {'sess': sessValue, 'unit': unitValue, 'aMinX': aMinX, 'aMaxX': aMaxX, 'sMinX': sMinX, 'sMaxX': sMaxX}, success: (res) => {
-            var keys = Object.keys(res);
-            // If the session and unit are the same (i.e., we're just updating axis range and check conditions), res returns {'refresh': False}
-            if (keys[0]==='refresh'){
-                updateButton.value = 'Fixing Axes...'
-                let arrUpdate = {'xaxis.range': [aMinX, aMaxX]};
-                let saccUpdate = {'xaxis.range': [sMinX, sMaxX]};
-                const arrPlots = Array.from(document.getElementsByClassName('arr-plot'))
-                arrPlots.forEach((item) => {
-                    Plotly.relayout(item, arrUpdate);
-                })
-                const saccPlots = Array.from(document.getElementsByClassName('sacc-plot'))
-                saccPlots.forEach((item) => {
-                    Plotly.relayout(item, saccUpdate);
-                })
-            } else {
-                updateButton.value = 'Parsing Input...';
-                var i;
-                for (i=0; i < keys.length; i++){
-                    var arrGraphs = JSON.parse(res[keys[i]].array.data);
-                    var saccGraphs = JSON.parse(res[keys[i]].saccade.data);
-                    Plotly.react(res[keys[i]].array.id, arrGraphs, {});  
-                    Plotly.react(res[keys[i]].saccade.id, saccGraphs, {});  
+    return new Promise( (resolve, reject) => {
+        updateButton.value = 'Requesting...'
+        $.getJSON({
+            url: "/plot-update-cb", data: {'sess': sessValue, 'unit': unitValue, 'aMinX': aMinX, 'aMaxX': aMaxX, 'sMinX': sMinX, 'sMaxX': sMaxX, 'forcePull': forcePull}, success: (res) => {
+                var keys = Object.keys(res);
+                console.log(res)
+                // If the session and unit are the same (i.e., we're just updating axis range and check conditions), res returns {'refresh': False}
+                if (keys[0]==='refresh'){
+                    updateButton.value = 'Fixing Axes...'
+                    let arrUpdate = {'xaxis.range': [aMinX, aMaxX]};
+                    let saccUpdate = {'xaxis.range': [sMinX, sMaxX]};
+                    const arrPlots = Array.from(document.getElementsByClassName('arr-plot'))
+                    arrPlots.forEach((item) => {
+                        Plotly.relayout(item, arrUpdate);
+                    })
+                    const saccPlots = Array.from(document.getElementsByClassName('sacc-plot'))
+                    saccPlots.forEach((item) => {
+                        Plotly.relayout(item, saccUpdate);
+                    })
+                    resolve();
+                } else {
+                    updateButton.value = 'Parsing Input...';
+                    var i;
+                    for (i=0; i < keys.length; i++){
+                        var arrGraphs = JSON.parse(res[keys[i]].array.data);
+                        var saccGraphs = JSON.parse(res[keys[i]].saccade.data);
+                        Plotly.react(res[keys[i]].array.id, arrGraphs, {});  
+                        Plotly.react(res[keys[i]].saccade.id, saccGraphs, {});  
+                    }
+                    resolve();
                 }
             }
-            updateButton.value = 'Fixing Traces...';
-            hideUnchecked();
-            updateButton.value = 'Update';
-        }
+        })
     })
+    
 }
 
 function inferSelection(){
@@ -296,6 +300,13 @@ function clearSSTs(){
     })
 }
 
+// Attach update function to page load
+window.onload = () => {
+    updateSessPlots(true).then(()=>{
+        hideUnchecked().then(() => updateButton.value = 'Update')
+    })
+}
+
 // Set global variables
 const arrNames = ["hh-array", "hl-array", "lh-array", "ll-array","hh-sacc", "hl-sacc", "lh-sacc", "ll-sacc"];
 const selTypeColors = {'sst': 'rgb(54,201,54)', 'cdt': 'rgb(54, 201, 201)', 'ngsst': 'rgb(230, 147, 23)', 'ocdt': 'rgb(201, 201, 54)', 'unk': 'rgb(0,0,0)'};
@@ -304,13 +315,18 @@ const selTypes = ['sst','cdt','ngs','ocd','unk']
 // Add event listeners for NHP and Session dropdowns
 const nhpElement = document.getElementById('nhp-dropdown')
 const sessElement = document.getElementById('sess-dropdown')
+const updateButton = document.getElementById('plots_update');
 nhpElement.addEventListener("change", (e) => {
     getSessList(e.target.value)
 })
 sessElement.addEventListener("change", (e) => {
     getUnitList(e.target.value)
 })
+updateButton.addEventListener('click', () => {
+    updateSessPlots(false).then(()=>{
+        hideUnchecked().then(() => updateButton.value = 'Update')
+    })
+})    
 
 // Hide initially unchecked values
-hideUnchecked();
 updateClickEvents();
