@@ -82,15 +82,11 @@ function updateClickEvents(){
             const thisPlot = data['event']['path'][6]['id'];
             // Try to infer what type of selection point this is
             const selType = inferSelection();
-            // Send to sst-click
-            $.getJSON({
-                url: "/sst-click-cb", data: {'x': thisX, 'plotID': thisPlot, 'selType': selType}, success: (res) => {
-                    // Get the layout of thisPlot
-                    let thisY = document.getElementById(thisPlot).layout.yaxis.range;
-                    Plotly.addTraces(document.getElementById(thisPlot), {x: [thisX, thisX], y: thisY, line: {'color': selTypeColors[selType]}});
-                    Plotly.relayout(document.getElementById(thisPlot), {'yaxis.range': thisY});
-                }
-            })
+            
+            // Get the layout of thisPlot
+            let thisY = document.getElementById(thisPlot).layout.yaxis.range;
+            Plotly.addTraces(document.getElementById(thisPlot), {x: [thisX, thisX], y: thisY, line: {'color': selTypeColors[selType]}});
+            Plotly.relayout(document.getElementById(thisPlot), {'yaxis.range': thisY});
         })
     }
 }
