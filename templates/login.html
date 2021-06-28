@@ -17,6 +17,10 @@
             <input type="password" id="password-in" name="password-in" style="width: 100%"><br>
         </div>
         <input type="button" id='login-button' style="margin: auto; margin-top:20px; width: 40%" value="Login" onclick="login()"></input>
+        <div style="display: flex; flex-direction: column; margin-top: 20px">
+            <p style="margin: auto; margin-top: 20px; font-size: larger">--- OR ---</p>
+            <a href="{{ url_for('single_sst') }}" style="margin: auto; font-size: larger">Continue as Guest</a>
+        </div>
     </div>
     <script src='https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js'></script>
     <script src="{{ url_for('static', filename='js/login.js') }}"></script>
