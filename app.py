@@ -17,14 +17,14 @@ from flask.helpers import url_for
 
 # Start app and clear session
 app = Flask(__name__)
-app.secret_key = 'secret2345'    
+app.secret_key = 'secret2345'
 
 # Open Mongo connection, starting with Guest
-db = MongoConnect('guest','guest')
+db = MongoConnect('guest', 'guest')
 sdf_coll = db['preextracted_sdfs']
 
 # Initialize figure dict
-plot_conds = ['hh','hl','lh','ll']
+plot_conds = ['hh', 'hl', 'lh', 'll']
 my_figs = {}
 for i, v in enumerate(plot_conds):
     my_figs[v] = {}
@@ -32,7 +32,7 @@ for i, v in enumerate(plot_conds):
     my_figs[v]['array']['data'] = []
     my_figs[v]['saccade'] = {}
     my_figs[v]['saccade']['data'] = []
-    
+
 # Initialize SST dict
 sst_dict = {}
 
@@ -117,7 +117,7 @@ def group_averages():
 ##############################
 
 # Callback for login handling
-@app.route('/login-cb', methods=['POST','GET'])
+@app.route('/login-cb', methods=['POST', 'GET'])
 def login_callback():
     if request.args.get('buttonState') == 'Logout':
         is_auth = False
@@ -132,52 +132,52 @@ def login_callback():
             session['is_auth'] = is_auth
             if is_auth:
                 session['user'] = uName
-        
+
     return jsonify({'isAuth': is_auth})
 
 
 # Callback for updating session list when NHP is changed
-@app.route('/nhp-update-cb', methods=['POST','GET'])
+@app.route('/nhp-update-cb', methods=['POST', 'GET'])
 def nhp_update_cb():
     nhp_list = PullNHPs(sdf_coll, session['is_auth'])
     if session['is_auth']:
         nhp_labs = [nhp_list[i] for i in range(len(nhp_list))]
     else:
         nhp_labs = [nhp_list[i][0:2] for i in range(len(nhp_list))]
-        
+
     return jsonify({'nhpVals': nhp_list, 'nhpLabels': nhp_labs})
 
 
 # Callback for updating session list when NHP is changed
-@app.route('/sess-update-cb', methods=['POST','GET'])
+@app.route('/sess-update-cb', methods=['POST', 'GET'])
 def sess_update_cb():
     this_nhp = request.args.get('nhp')
     sess_list = PullSess(sdf_coll, this_nhp, session['is_auth'])
-    
+
     return jsonify({'sessList': sess_list})
 
 
 # Callback for updating unit list when session is changed
-@app.route('/unit-update-cb', methods=['POST','GET'])
+@app.route('/unit-update-cb', methods=['POST', 'GET'])
 def unit_update_cb():
     this_sess = request.args.get('sess')
     unit_list = PullUnits(sdf_coll, this_sess, session['is_auth'])
-    
+
     return jsonify({'unitList': unit_list})
 
 
-@app.route('/sst-click-cb', methods=['POST','GET'])
+@app.route('/sst-click-cb', methods=['POST', 'GET'])
 def sst_click_parse():
     click_sst = request.args.get('x')
     plot_id = request.args.get('plotID')
     sel_type = request.args.get('selType')
-    if plot_id[3]=='a':
+    if plot_id[3] == 'a':
         plot_label = plot_id[0:2]
-    elif plot_id[3]=='s':
+    elif plot_id[3] == 's':
         plot_label = 'm'+plot_id[0:2]
     else:
         plot_label = 'unk'
-        
+
     # Put in key dict
     if session['session'] not in sst_dict.keys():
         sst_dict[session['session']] = {}
@@ -192,7 +192,7 @@ def sst_click_parse():
     return jsonify({'success': True})
 
 
-@app.route('/sst-submit', methods=['POST','GET'])
+@app.route('/sst-submit', methods=['POST', 'GET'])
 def sst_submit():
     # Save for backup security
     from random import randint
@@ -221,7 +221,7 @@ def sst_submit():
 
 
 # Callback for updating plots
-@app.route('/plot-update-cb', methods=['POST','GET'])
+@app.route('/plot-update-cb', methods=['POST', 'GET'])
 def update_plots():
     this_sess = request.args.get('sess')
     this_unit = request.args.get('unit')
@@ -252,7 +252,7 @@ def update_plots():
                                   )
             my_figs[cond]['array']['data'] = json.dumps(tmp_fig, cls=plotly.utils.PlotlyJSONEncoder)
             my_figs[cond]['array']['id'] = '{}-array'.format(cond)
-        
+
             # Saccade plots
             tmp_fig = PlotConds(m_dict, m_dict_sem, cond)
             tmp_fig = AddVLine(tmp_fig, cond, unit_ssts,mov=True)
@@ -263,11 +263,11 @@ def update_plots():
                                   )
             my_figs[cond]['saccade']['data'] = json.dumps(tmp_fig, cls=plotly.utils.PlotlyJSONEncoder)
             my_figs[cond]['saccade']['id'] = '{}-sacc'.format(cond)
-        
+
         return my_figs
     else:
         return {'refresh': False}
-    
+
 
 # Make the query to the database to get the population SDF values    
 @app.route('/get-pop-plots', methods=['POST','GET'])
