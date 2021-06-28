@@ -8,12 +8,14 @@
     <title>Interactive SST Landing Page</title>
 </head>
 <body>
-    <h3>Welcome to the SST landing page {{ user }}</h3>
-    <h6><a href="{{ url_for('login_page') }}">Go to login page</a></h6>
-    <h6><a href="{{ url_for('single_sst') }}">Go to single SST curation page</a></h6>
-    <h6><a href="{{ url_for('group_averages') }}">Go to population average SST page</a></h6>
-    <input type="button" id='logout-button' style="margin: auto; margin-top:20px; width: 40%" value="Logout" onclick="logout()"></input>
-    <script src='https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js'></script>
-    <script src="{{ url_for('static', filename='js/home.js') }}"></script>
+    <div style="display: flex; flex-direction: column; width: 50%; margin: 0 auto; margin-top: 5%";> 
+        <h3 style="margin:0 auto">Welcome to the SST landing page {{ user }}</h3><br>
+        <h6 style="margin:0 auto"><a href="{{ url_for('login_page') }}">Go to login page</a></h6><br>
+        <h6 style="margin:0 auto"><a href="{{ url_for('single_sst') }}">Go to single SST curation page</a></h6><br>
+        <h6 style="margin:0 auto"><a href="{{ url_for('group_averages') }}">Go to population average SST page</a></h6><br>
+        <input type="button" id='logout-button' style="margin: auto; margin-top:20px; width: 100%" value="Logout" onclick="logout()"></input>
+        <script src='https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js'></script>
+        <script src="{{ url_for('static', filename='js/home.js') }}"></script>
+    </div>
 </body>
 </html>

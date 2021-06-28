@@ -75,31 +75,10 @@ def single_sst():
     unit_list = PullUnits(sdf_coll, sess_list[0], session['is_auth'])
 
     # Load initial spike/SDF values            
-    v_dict, v_dict_sem, m_dict, m_dict_sem, unit_ssts = SpikesFromDB(sess_list[0], unit_list[0], sdf_coll, user=session['user'])
-    #session['session'] = sess_list[0]
-    #session['unit'] = unit_list[0]
-    #sst_dict[session['session']] = {session['unit']: unit_ssts}
+    #v_dict, v_dict_sem, m_dict, m_dict_sem, unit_ssts = SpikesFromDB(sess_list[0], unit_list[0], sdf_coll, user=session['user'])
     
     # Make array-aligned figures
     for ic, cond in enumerate(plot_conds):
-        '''
-        # Array plots
-        tmp_fig = PlotConds(v_dict, v_dict_sem, cond)
-        PlotConds(v_dict, v_dict_sem, cond[0]+'0', fig=tmp_fig)
-        # Now plot all the SSTs/CDTs
-        tmp_fig = AddVLine(tmp_fig, cond, unit_ssts,mov=False)
-        tmp_fig.update_layout(xaxis_range=[-100,400], width=600, height=400,spikedistance=-1,hovermode='x unified')
-        
-        my_figs[cond]['array']['data'] = json.dumps(tmp_fig, cls=plotly.utils.PlotlyJSONEncoder)
-        my_figs[cond]['array']['id'] = '{}-array'.format(cond)
-        
-        # Saccade plots
-        tmp_fig = PlotConds(m_dict, m_dict_sem, cond)
-        tmp_fig = AddVLine(tmp_fig, cond, unit_ssts,mov=True)
-        tmp_fig.update_layout(xaxis_range=[-250,250], width=600, height=400,spikedistance=-1,hovermode='x unified')
-        my_figs[cond]['saccade']['data'] = json.dumps(tmp_fig, cls=plotly.utils.PlotlyJSONEncoder)
-        my_figs[cond]['saccade']['id'] = '{}-sacc'.format(cond)
-        '''
         my_figs[cond]['array']['data'] = json.dumps(go.Figure(), cls=plotly.utils.PlotlyJSONEncoder)
         my_figs[cond]['array']['id'] = '{}-array'.format(cond)
         my_figs[cond]['saccade']['data'] = json.dumps(go.Figure(), cls=plotly.utils.PlotlyJSONEncoder)
@@ -266,14 +245,22 @@ def update_plots():
             tmp_fig = PlotConds(v_dict, v_dict_sem, cond)
             PlotConds(v_dict, v_dict_sem, cond[0]+'0', fig=tmp_fig)
             tmp_fig = AddVLine(tmp_fig, cond, unit_ssts,mov=False)
-            tmp_fig.update_layout(xaxis_range=[arr_x_min,arr_x_max], width=600, height=400,spikedistance=-1,hovermode='x unified')
+            tmp_fig.update_layout(title='{}, Array Aligned'.format(cond.upper()),
+                                  xaxis_range=[arr_x_min,arr_x_max], 
+                                  width=600, height=400,
+                                  spikedistance=-1,hovermode='x unified'
+                                  )
             my_figs[cond]['array']['data'] = json.dumps(tmp_fig, cls=plotly.utils.PlotlyJSONEncoder)
             my_figs[cond]['array']['id'] = '{}-array'.format(cond)
         
             # Saccade plots
             tmp_fig = PlotConds(m_dict, m_dict_sem, cond)
             tmp_fig = AddVLine(tmp_fig, cond, unit_ssts,mov=True)
-            tmp_fig.update_layout(xaxis_range=[sacc_x_min,sacc_x_max], width=600, height=400,spikedistance=-1,hovermode='x unified')
+            tmp_fig.update_layout(title='{}, Saccade Aligned'.format(cond.upper()),
+                                  xaxis_range=[sacc_x_min,sacc_x_max],
+                                  width=600, height=400,
+                                  spikedistance=-1,hovermode='x unified'
+                                  )
             my_figs[cond]['saccade']['data'] = json.dumps(tmp_fig, cls=plotly.utils.PlotlyJSONEncoder)
             my_figs[cond]['saccade']['id'] = '{}-sacc'.format(cond)
         
@@ -297,13 +284,21 @@ def get_pop_plots():
         # Array plots
         tmp_fig = PlotPop(pop_sdfs['Vis'], cond)
         PlotPop(pop_sdfs['Vis'], cond[0]+'0', fig=tmp_fig)
-        tmp_fig.update_layout(xaxis_range=[arr_x_min,arr_x_max], width=600, height=400,spikedistance=-1,hovermode='x unified')
+        tmp_fig.update_layout(title='{}, Array Aligned'.format(cond.upper()),
+                              xaxis_range=[arr_x_min,arr_x_max], 
+                              width=600, height=400,
+                              spikedistance=-1,hovermode='x unified'
+                              )
         my_figs[cond]['array']['data'] = json.dumps(tmp_fig, cls=plotly.utils.PlotlyJSONEncoder)
         my_figs[cond]['array']['id'] = '{}-array'.format(cond)
         
         # Saccade plots
         tmp_fig = PlotPop(pop_sdfs['Mov'], cond)
-        tmp_fig.update_layout(xaxis_range=[sacc_x_min,sacc_x_max], width=600, height=400,spikedistance=-1,hovermode='x unified')
+        tmp_fig.update_layout(title='{}, Saccade Aligned'.format(cond.upper()),
+                              xaxis_range=[sacc_x_min,sacc_x_max], 
+                              width=600, height=400,
+                              spikedistance=-1,hovermode='x unified'
+                              )
         my_figs[cond]['saccade']['data'] = json.dumps(tmp_fig, cls=plotly.utils.PlotlyJSONEncoder)
         my_figs[cond]['saccade']['id'] = '{}-sacc'.format(cond)
         
