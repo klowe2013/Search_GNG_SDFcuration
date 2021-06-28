@@ -169,6 +169,13 @@ function inferSelection(){
     return selType;
 }
 
+function logout(){
+    $.getJSON({
+        url: "/login-cb", data: {'buttonState': 'Logout'}, success: () => {
+            window.location.href = "/login";
+        }
+    })
+}
 // Attach update function to page load
 window.onload = () => {
     updatePopPlots(true).then(()=>{

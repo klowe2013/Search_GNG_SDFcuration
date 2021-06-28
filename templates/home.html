@@ -5,11 +5,13 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://codepen.io/chriddyp/pen/bWLwgP.css">
     <title>Interactive SST Landing Page</title>
 </head>
 
 <body>
+    {% include 'includes/_navbar.html' %}
     <div style="display: flex; flex-direction: column; width: 50%; margin: 0 auto; margin-top: 5%";> 
         <h3 style="margin:0 auto">Welcome to the SST landing page {{ user }}</h3><br>
         <h6 style="margin:0 auto"><a href="{{ url_for('login_page') }}">Go to login page</a></h6><br>

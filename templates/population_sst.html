@@ -4,17 +4,13 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://codepen.io/chriddyp/pen/bWLwgP.css">
     <title>Interactive SDFs with Flask</title>
 </head>
 <body>
-    <div>
-        <a href="{{url_for('landing')}}" style:"display:inline-block">Home</a>
-        <a href="{{url_for('login_page')}}" style:"display:inline-block">Login</a>
-        <a href="{{url_for('single_sst')}}" style:"display:inline-block">Single SST</a>
-        <a href="{{url_for('group_averages')}}" style:"display:inline-block">Population SST</a>
-    </div>
-    <div class="row">
+    {% include 'includes/_navbar.html' %}
+    <div class="row" style="margin-left: 5%">
         <div class="three columns">
             <h5>Conditions</h5>
             <div id="trial-type-checklist">
@@ -43,23 +39,23 @@
             <input type="number" id="sacc_xmax_state" value=250>
         </div>
     </div>
-    <input type="button" value="Update" id="plots_update">
+    <input type="button" value="Update" id="plots_update" style="margin-left: 5%">
     <br>
-    <input type="button" value="Submit SST" id="sst_submit" onclick="submitSSTs()">
+    <input type="button" value="Submit SST" id="sst_submit" onclick="submitSSTs()" style="margin-left: 5%">
 
-    <div id="hh-plots" class="row">
+    <div id="hh-plots" class="row" style="margin-left: 5%">
         <div id='hh-array' class='chart arr-plot five columns'></div>
         <div id='hh-sacc' class='chart sacc-plot five columns'></div>
     </div>
-    <div id="hl-plots" class="row">
+    <div id="hl-plots" class="row" style="margin-left: 5%">
         <div id='hl-array' class='chart arr-plot five columns'></div>
         <div id='hl-sacc' class='chart sacc-plot five columns'></div>
     </div>
-    <div id="lh-plots" class="row">
+    <div id="lh-plots" class="row" style="margin-left: 5%">
         <div id='lh-array' class='chart arr-plot five columns'></div>
         <div id='lh-sacc' class='chart sacc-plot five columns'></div>
     </div>
-    <div id="ll-plots" class="row">
+    <div id="ll-plots" class="row" style="margin-left: 5%">
         <div id='ll-array' class='chart arr-plot five columns'></div>
         <div id='ll-sacc' class='chart sacc-plot five columns'></div>
     </div>
@@ -68,27 +64,5 @@
 
 <script src='https://cdn.plot.ly/plotly-latest.min.js'></script>
 <script src='https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js'></script>
-<script type='text/javascript'>
-    var hh_arr_graph = {{cond_plots['hh']['array']['data'] | safe}};
-    var hh_sacc_graph = {{cond_plots['hh']['saccade']['data'] | safe}};
-    Plotly.plot('hh-array', hh_arr_graph, {})
-    Plotly.plot('hh-sacc', hh_sacc_graph, {})
-
-    var hl_arr_graph = {{cond_plots['hl']['array']['data'] | safe}};
-    var hl_sacc_graph = {{cond_plots['hl']['saccade']['data'] | safe}};
-    Plotly.plot('hl-array', hl_arr_graph, {})
-    Plotly.plot('hl-sacc', hl_sacc_graph, {})
-    
-    var lh_arr_graph = {{cond_plots['lh']['array']['data'] | safe}};
-    var lh_sacc_graph = {{cond_plots['lh']['saccade']['data'] | safe}};
-    Plotly.plot('lh-array', lh_arr_graph, {})
-    Plotly.plot('lh-sacc', lh_sacc_graph, {})
-    
-    var ll_arr_graph = {{cond_plots['ll']['array']['data'] | safe}};
-    var ll_sacc_graph = {{cond_plots['ll']['saccade']['data'] | safe}};
-    Plotly.plot('ll-array', ll_arr_graph, {})
-    Plotly.plot('ll-sacc', ll_sacc_graph, {})
-    
-</script>
 <script src="{{ url_for('static', filename='js/population_sst.js') }}"></script>
 </html>
