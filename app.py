@@ -6,6 +6,7 @@ import json
 import os
 from utils.mongoUtils import MongoConnect, PullNHPs, PullSess, PullUnits, SpikesFromDB, MongoLogin, AllSDFs, UpdateUnit
 from utils.plotUtils import PlotConds, PltMeanStd, PlotPop, GetYRange, AddVLine
+from utils.mathUtils import NormSDFs
 
 # Plotting imports
 import plotly
@@ -255,6 +256,7 @@ def update_plots():
 
             # Saccade plots
             tmp_fig = PlotConds(m_dict, m_dict_sem, cond)
+            PlotConds(m_dict, m_dict_sem, cond[0]+'0', fig=tmp_fig)
             tmp_fig = AddVLine(tmp_fig, cond, unit_ssts,mov=True)
             tmp_fig.update_layout(title='{}, Saccade Aligned'.format(cond.upper()),
                                   xaxis_range=[sacc_x_min,sacc_x_max],
@@ -279,11 +281,15 @@ def get_pop_plots():
     
     # Pull the population data
     pop_sdfs, unit_nhps = AllSDFs(sdf_coll, session['is_auth'])
+    
+    # Normalize pop_sdfs for cross-unit scaling
+    norm_sdfs = NormSDFs(pop_sdfs)
+    
     # Now generate the plots
     for ic, cond in enumerate(plot_conds):
         # Array plots
-        tmp_fig = PlotPop(pop_sdfs['Vis'], cond)
-        PlotPop(pop_sdfs['Vis'], cond[0]+'0', fig=tmp_fig)
+        tmp_fig = PlotPop(norm_sdfs['Vis'], cond)
+        PlotPop(norm_sdfs['Vis'], cond[0]+'0', fig=tmp_fig)
         tmp_fig.update_layout(title='{}, Array Aligned'.format(cond.upper()),
                               xaxis_range=[arr_x_min,arr_x_max], 
                               width=600, height=400,
@@ -293,7 +299,8 @@ def get_pop_plots():
         my_figs[cond]['array']['id'] = '{}-array'.format(cond)
         
         # Saccade plots
-        tmp_fig = PlotPop(pop_sdfs['Mov'], cond)
+        tmp_fig = PlotPop(norm_sdfs['Mov'], cond)
+        PlotPop(norm_sdfs['Mov'], cond[0]+'0', fig=tmp_fig)
         tmp_fig.update_layout(title='{}, Saccade Aligned'.format(cond.upper()),
                               xaxis_range=[sacc_x_min,sacc_x_max], 
                               width=600, height=400,
@@ -320,4 +327,4 @@ def clear_ssts():
     
 # Run the appP
 if __name__ == '__main__':
-    app.run(debug=False)
+    app.run(debug=True)

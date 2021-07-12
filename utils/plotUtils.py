@@ -64,19 +64,19 @@ def PlotPop(pop_sdfs, cond, show_in=True, show_out=True, fig=None):
     
     IN_WIDTH = 3
     OUT_WIDTH = 1
-        
+
     if fig is None:
         fig = go.Figure()
     
     if show_in:
         PltMeanStd(pop_sdfs['Times'],
-                   np.mean(pop_sdfs[cond.upper()]['in'],axis=0),
-                   np.std(pop_sdfs[cond.upper()]['in'],axis=0)/np.sqrt(pop_sdfs[cond.upper()]['in'].shape[0]),
+                   np.nanmean(pop_sdfs[cond.upper()]['in'],axis=0),
+                   np.nanstd(pop_sdfs[cond.upper()]['in'],axis=0)/np.sqrt(pop_sdfs[cond.upper()]['in'].shape[0]),
                    fig=fig, color=colors[cond], width=IN_WIDTH, name=cond.upper()+' IN')
     if show_out:
         PltMeanStd(pop_sdfs['Times'],
-                   np.mean(pop_sdfs[cond.upper()]['out'],axis=0),
-                   np.std(pop_sdfs[cond.upper()]['out'],axis=0)/np.sqrt(pop_sdfs[cond.upper()]['out'].shape[0]),
+                   np.nanmean(pop_sdfs[cond.upper()]['out'],axis=0),
+                   np.nanstd(pop_sdfs[cond.upper()]['out'],axis=0)/np.sqrt(pop_sdfs[cond.upper()]['out'].shape[0]),
                    fig=fig, color=colors[cond], width=OUT_WIDTH, name=cond.upper()+' OUT')
     
     return fig

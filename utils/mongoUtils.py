@@ -59,9 +59,8 @@ def SpikesFromDB(sess, unit, coll, user=None):
     for i in range(len(my_conds)):
         v_dict[my_conds[i].lower()] = {'in': pickle.loads(doc[my_conds[i]]['InV']), 'out': pickle.loads(doc[my_conds[i]]['OutV'])}
         v_dict_sem[my_conds[i].lower()] = {'in': pickle.loads(doc[my_conds[i]]['InVS']), 'out': pickle.loads(doc[my_conds[i]]['OutVS'])}
-        if '0' not in my_conds[i]:
-            m_dict[my_conds[i].lower()] = {'in': pickle.loads(doc[my_conds[i]]['InM']), 'out': pickle.loads(doc[my_conds[i]]['OutM'])}
-            m_dict_sem[my_conds[i].lower()] = {'in': pickle.loads(doc[my_conds[i]]['InMS']), 'out': pickle.loads(doc[my_conds[i]]['OutMS'])}
+        m_dict[my_conds[i].lower()] = {'in': pickle.loads(doc[my_conds[i]]['InM']), 'out': pickle.loads(doc[my_conds[i]]['OutM'])}
+        m_dict_sem[my_conds[i].lower()] = {'in': pickle.loads(doc[my_conds[i]]['InMS']), 'out': pickle.loads(doc[my_conds[i]]['OutMS'])}
     v_dict['t'] = pickle.loads(doc['vTimes'])        
     v_dict_sem['t'] = pickle.loads(doc['vTimes'])        
     m_dict['t'] = pickle.loads(doc['mTimes'])        
@@ -98,17 +97,15 @@ def AllSDFs(coll, auth):
         all_sdfs['Mov'][cond] = {}
         all_sdfs['Vis'][cond]['in'] = [[] for i in range(n_docs)]
         all_sdfs['Vis'][cond]['out'] = [[] for i in range(n_docs)]
-        if cond[1] is not '0': # For now there are no Mov aligned NOGO trials
-            all_sdfs['Mov'][cond]['in'] = [[] for i in range(n_docs)]
-            all_sdfs['Mov'][cond]['out'] = [[] for i in range(n_docs)]
+        all_sdfs['Mov'][cond]['in'] = [[] for i in range(n_docs)]
+        all_sdfs['Mov'][cond]['out'] = [[] for i in range(n_docs)]
             
     for id, doc in enumerate(docs):
         for ic, cond in enumerate(my_conds):
             all_sdfs['Vis'][cond]['in'][id] = pickle.loads(doc[cond]['InV'])
             all_sdfs['Vis'][cond]['out'][id] = pickle.loads(doc[cond]['OutV'])
-            if cond[1] is not '0': # For now there are no Mov aligned NOGO trials
-                all_sdfs['Mov'][cond]['in'][id] = pickle.loads(doc[cond]['InM'])
-                all_sdfs['Mov'][cond]['out'][id] = pickle.loads(doc[cond]['OutM'])
+            all_sdfs['Mov'][cond]['in'][id] = pickle.loads(doc[cond]['InM'])
+            all_sdfs['Mov'][cond]['out'][id] = pickle.loads(doc[cond]['OutM'])
         if id==0:
             all_sdfs['Vis']['Times'] = pickle.loads(doc['vTimes'])
             all_sdfs['Mov']['Times'] = pickle.loads(doc['mTimes'])
@@ -119,9 +116,8 @@ def AllSDFs(coll, auth):
     for ic, cond in enumerate(my_conds):
         all_sdfs['Vis'][cond]['in'] = np.array(all_sdfs['Vis'][cond]['in'])
         all_sdfs['Vis'][cond]['out'] = np.array(all_sdfs['Vis'][cond]['out'])
-        if cond[1] is not '0':
-            all_sdfs['Mov'][cond]['in'] = np.array(all_sdfs['Mov'][cond]['in'])
-            all_sdfs['Mov'][cond]['out'] = np.array(all_sdfs['Mov'][cond]['out'])
+        all_sdfs['Mov'][cond]['in'] = np.array(all_sdfs['Mov'][cond]['in'])
+        all_sdfs['Mov'][cond]['out'] = np.array(all_sdfs['Mov'][cond]['out'])
     
     return all_sdfs, nhp
         
