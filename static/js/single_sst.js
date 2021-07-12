@@ -78,7 +78,6 @@ function updateUnitList(unitList) {
 
 // Hide unchecked values
 function hideUnchecked() {
-    console.log('Entering hideUnchecked')
     // Get checked elements
     const inGoCheck = document.getElementById("in-go").checked;
     const outGoCheck = document.getElementById("out-go").checked;
@@ -207,7 +206,6 @@ function updateSessPlots(forcePull) {
         $.getJSON({
             url: "/plot-update-cb", data: { 'sess': sessValue, 'unit': unitValue, 'aMinX': aMinX, 'aMaxX': aMaxX, 'sMinX': sMinX, 'sMaxX': sMaxX, 'forcePull': forcePull }, success: (res) => {
                 var keys = Object.keys(res);
-                console.log(res)
                 // If the session and unit are the same (i.e., we're just updating axis range and check conditions), res returns {'refresh': False}
                 if (keys[0] === 'refresh') {
                     updateButton.value = 'Fixing Axes...'
