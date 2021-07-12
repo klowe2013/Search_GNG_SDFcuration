@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
@@ -7,7 +8,9 @@
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://codepen.io/chriddyp/pen/bWLwgP.css">
     <title>Interactive SDFs with Flask</title>
+    <script src='https://cdn.plot.ly/plotly-latest.min.js'></script>
 </head>
+
 <body>
     {% include 'includes/_navbar.html' %}
     <!--div>
@@ -21,16 +24,16 @@
             <div class="three columns">
                 <h5>NHP</h5>
                 <select name="nhp-dropdown" id="nhp-dropdown">
-                    {% if logged_in == True %} 
-                        <option value="{{nhps[0]}}" SELECTED>{{nhps[0]}}</option>
-                        {% for nhp in nhps[1:] %}
-                            <option value="{{nhp}}">{{nhp}}</option>
-                        {% endfor %}
-                    {% else %} 
-                        <option value="{{nhps[0]}}" SELECTED>{{nhps[0][0:2]}}</option>
-                        {% for nhp in nhps[1:] %}
-                            <option value="{{nhp}}">{{nhp[0:2]}}</option>
-                        {% endfor %}
+                    {% if logged_in == True %}
+                    <option value="{{nhps[0]}}" SELECTED>{{nhps[0]}}</option>
+                    {% for nhp in nhps[1:] %}
+                    <option value="{{nhp}}">{{nhp}}</option>
+                    {% endfor %}
+                    {% else %}
+                    <option value="{{nhps[0]}}" SELECTED>{{nhps[0][0:2]}}</option>
+                    {% for nhp in nhps[1:] %}
+                    <option value="{{nhp}}">{{nhp[0:2]}}</option>
+                    {% endfor %}
                     {% endif %}
                 </select>
             </div>
@@ -39,7 +42,7 @@
                 <select name="sess-dropdown" id="sess-dropdown">
                     <option value="{{sessions[0]}}" SELECTED>{{sessions[0].split('-')[1]}}</option>
                     {% for session in sessions[1:] %}
-                        <option value="{{session}}">{{session.split('-')[1]}}</option>
+                    <option value="{{session}}">{{session.split('-')[1]}}</option>
                     {% endfor %}
                 </select>
             </div>
@@ -48,7 +51,7 @@
                 <select name="unit-dropdown" id="unit-dropdown">
                     <option value="{{units[0]}}" SELECTED>{{units[0]}}</option>
                     {% for unit in units[1:] %}
-                        <option value="{{unit}}">{{unit}}</option>
+                    <option value="{{unit}}">{{unit}}</option>
                     {% endfor %}
                 </select>
             </div>
@@ -56,7 +59,7 @@
         </div>
     </div>
     <br>
-    <div class="row"  style="margin-left: 5%">
+    <div class="row" style="margin-left: 5%">
         <div class="three columns">
             <h5>Conditions</h5>
             <div id="trial-type-checklist">
@@ -66,7 +69,7 @@
                 <label for="out-go" style="vertical-align: top; display:inline-block">Out-GO</label><br>
                 <input type="checkbox" id="in-ng" value="inng">
                 <label for="in-ng" style="vertical-align: top; display:inline-block">In-NOGO</label><br>
-                <input type="checkbox" id="out-ng" value="outng" >
+                <input type="checkbox" id="out-ng" value="outng">
                 <label for="out-ng" style="vertical-align: top; display:inline-block">Out-NOGO</label><br>
             </div>
         </div>
@@ -90,7 +93,7 @@
     <input type="button" value="Submit SST" id="sst_submit" onclick="submitSSTs()" style="margin-left: 5%">
     <br>
     <input type="button" value="Clear Selection Times" id="sst_clear" onclick="clearSSTs()" style="margin-left: 5%">
-    
+
     <div id="hh-plots" class="row" style="margin-left: 5%">
         <div id='hh-array' class='chart arr-plot five columns'></div>
         <div id='hh-sacc' class='chart sacc-plot five columns'></div>
@@ -110,7 +113,7 @@
 
 </body>
 
-<script src='https://cdn.plot.ly/plotly-latest.min.js'></script>
 <script src='https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js'></script>
 <script src="{{ url_for('static', filename='js/single_sst.js') }}"></script>
+
 </html>
