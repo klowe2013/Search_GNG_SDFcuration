@@ -88,12 +88,29 @@
             <input type="number" id="sacc_xmax_state" value=250>
         </div>
     </div>
-    <input type="button" value="Update" id="plots_update" style="margin-left: 5%">
     <br>
-    <input type="button" value="Submit SST" id="sst_submit" onclick="submitSSTs()" style="margin-left: 5%">
+    <div class="four columns">
+        <b style="font-size: large">Quality and Cell Type:</b>
+        <br>
+        <label for="" class="pull-left">Figure Quality</label>
+        <label for="" class="pull-right">Pure Noise</label>
+        <input type="range" min="1" max="5" value="3" class="slider" id="quality-slider"
+            style="appearance: none; outline: none; background: rgb(192, 187, 187); height: 10px; border-radius: 5px; margin-bottom: .5em">
+        <label for="" class="pull-left">Vis</label>
+        <label for="" class="pull-right">Mov</label>
+        <input type="range" min="1" max="5" value="3" class="slider" id="vm-slider"
+            style="appearance: none; outline: none; background: rgb(192, 187, 187); height: 10px; border-radius: 5px">
+    </div>
+    <div>
+        <input type="button" value="Update" id="plots_update" style="margin-left: 5%; width: 20%">
+        <br>
+        <input type="button" value="Submit SST" id="sst_submit" onclick="submitSSTs()"
+            style="margin-left: 5%; width: 20%">
+        <br>
+        <input type="button" value="Clear Selection Times" id="sst_clear" onclick="clearSSTs()"
+            style="margin-left: 5%; width: 20%">
+    </div>
     <br>
-    <input type="button" value="Clear Selection Times" id="sst_clear" onclick="clearSSTs()" style="margin-left: 5%">
-
     <div id="hh-plots" class="row" style="margin-left: 5%">
         <div id='hh-array' class='chart arr-plot five columns'></div>
         <div id='hh-sacc' class='chart sacc-plot five columns'></div>
