@@ -352,7 +352,7 @@ window.onload = () => {
         updateClickEvents().then(() => {
             hideUnchecked().then(() => updateButton.value = 'Update');
         });
-    getScores();
+        getScores();
     })
 }
 
