@@ -196,9 +196,18 @@ def set_type_cb():
 
 @app.route('/get-scores-cb')
 def get_scores():
-    vm_val = sst_dict[session['session']][session['unit']]['VM_Score']
-    qual_val = sst_dict[session['session']][session['unit']]['Quality']
-    
+    try:
+        vm_val = sst_dict[session['session']][session['unit']]['VM_Score']
+    except:
+        sst_dict[session['session']][session['unit']]['VM_Score'] = 3
+        vm_val = 3
+                
+    try:
+        qual_val = sst_dict[session['session']][session['unit']]['Quality']
+    except:
+        sst_dict[session['session']][session['unit']]['Quality'] = 3
+        qual_val = 3
+            
     return jsonify({'vm': vm_val, 'qual': qual_val})
 
 
