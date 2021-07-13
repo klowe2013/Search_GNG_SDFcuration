@@ -13,12 +13,6 @@
 
 <body>
     {% include 'includes/_navbar.html' %}
-    <!--div>
-        <a href="{{url_for('landing')}}" style:"display:inline-block">Home</a>
-        <a href="{{url_for('login_page')}}" style:"display:inline-block">Login</a>
-        <a href="{{url_for('single_sst')}}" style:"display:inline-block">Single SST</a>
-        <a href="{{url_for('group_averages')}}" style:"display:inline-block">Population SST</a>
-    </div-->
     <div>
         <div class="row" style="margin-left: 5%">
             <div class="three columns">
@@ -89,7 +83,7 @@
         </div>
     </div>
     <br>
-    <div class="four columns">
+    <div class="three columns">
         <b style="font-size: large">Quality and Cell Type:</b>
         <br>
         <label for="" class="pull-left">Figure Quality</label>
@@ -100,6 +94,10 @@
         <label for="" class="pull-right">Mov</label>
         <input type="range" min="1" max="5" value="3" class="slider" id="vm-slider"
             style="appearance: none; outline: none; background: rgb(192, 187, 187); height: 10px; border-radius: 5px">
+    </div>
+    <div class="one column" style="height: 120px;">
+        <label for="other-type" style="padding-top: 60px">N/A</label>
+        <input type="checkbox" id="other-type" value="other-type">
     </div>
     <div>
         <input type="button" value="Update" id="plots_update" style="margin-left: 5%; width: 20%">

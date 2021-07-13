@@ -309,12 +309,50 @@ function logout() {
     })
 }
 
+function sendQuality() {
+    const qualSlider = document.getElementById('quality-slider');
+    
+    $.getJSON({
+        url: "/set-quality-cb", data: { 'quality': qualSlider.value }
+    })
+}
+
+function sendVM() {
+    const vmSlider = document.getElementById('vm-slider');
+    const otherCheck = document.getElementById('other-type')
+
+    $.getJSON({
+        url: "/set-type-cb", data: { 'vm': vmSlider.value, 'none': otherCheck.checked }
+    })
+}
+
+function getScores() {
+    const qualSlider = document.getElementById('quality-slider');
+    const typeSlider = document.getElementById('vm-slider');
+    const otherCheck = document.getElementById('other-type');
+
+    $.getJSON({
+        url: "/get-scores-cb", success: (res) => {
+            console.log(res)
+            qualSlider.value = res.qual;
+            if (res.vm == 0) {
+                typeSlider.value = 3;
+                otherCheck.checked = true;
+            } else {
+                typeSlider.value = res.vm;
+                otherCheck.checked = false;
+            }
+        }
+    })
+}
+
 // Attach update function to page load
 window.onload = () => {
     updateSessPlots(true).then(() => {
         updateClickEvents().then(() => {
-            hideUnchecked().then(() => updateButton.value = 'Update')
-        })
+            hideUnchecked().then(() => updateButton.value = 'Update');
+        });
+    getScores();
     })
 }
 
@@ -327,6 +365,9 @@ const selTypes = ['sst', 'cdt', 'ngs', 'ocd', 'unk']
 const nhpElement = document.getElementById('nhp-dropdown')
 const sessElement = document.getElementById('sess-dropdown')
 const updateButton = document.getElementById('plots_update');
+const qualSlider = document.getElementById('quality-slider');
+const typeSlider = document.getElementById('vm-slider');
+const otherCheck = document.getElementById('other-type');
 nhpElement.addEventListener("change", (e) => {
     getSessList(e.target.value)
 })
@@ -335,8 +376,18 @@ sessElement.addEventListener("change", (e) => {
 })
 updateButton.addEventListener('click', () => {
     updateSessPlots(false).then(() => {
-        hideUnchecked().then(() => updateButton.value = 'Update')
+        hideUnchecked().then(() => updateButton.value = 'Update');
+        getScores();
     })
+})
+qualSlider.addEventListener('change', (e) => {
+    sendQuality()
+})
+typeSlider.addEventListener('change', (e) => {
+    sendVM()
+})
+otherCheck.addEventListener('change', (e) => {
+    sendVM()
 })
 
 // Hide initially unchecked values

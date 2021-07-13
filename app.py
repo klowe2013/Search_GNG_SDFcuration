@@ -167,6 +167,38 @@ def unit_update_cb():
     return jsonify({'unitList': unit_list})
 
 
+@app.route('/set-quality-cb', methods=['POST', 'GET'])
+def set_quality_cb():
+    this_quality = request.args.get('quality')
+    
+    if session['session'] not in sst_dict.keys():
+        sst_dict[session['session']] = {}
+    if session['unit'] not in sst_dict[session['session']].keys():
+        sst_dict[session['session']][session['unit']] = {}
+    
+    sst_dict[session['session']][session['unit']]['Quality'] = this_quality
+
+    return jsonify({'success': True})
+
+
+@app.route('/set-type-cb', methods=['POST', 'GET'])
+def set_type_cb():
+    this_vm = request.args.get('vm')
+    none_checked = request.args.get('none')
+    
+    if none_checked=='true':
+        this_vm = 0
+    
+    sst_dict[session['session']][session['unit']]['VM_Score'] = this_vm
+    
+    return jsonify({'success': True})
+
+
+@app.route('/get-scores-cb')
+def get_scores():
+    return jsonify({'vm': sst_dict[session['session']][session['unit']]['VM_Score'], 'qual': sst_dict[session['session']][session['unit']]['Quality']})
+
+
 @app.route('/sst-click-cb', methods=['POST', 'GET'])
 def sst_click_parse():
     click_sst = request.args.get('x')
@@ -239,7 +271,13 @@ def update_plots():
         session['session'] = this_sess
         session['unit'] = this_unit
         sst_dict[session['session']] = {session['unit']: unit_ssts}
-    
+
+        # If the unit gets loaded, initialize VM and Quality to 3 if they haven't been saved previously 
+        # (units that haven't been loaded will have no scores here and can be marked that way)
+        if 'VM_Score' not in unit_ssts.keys():
+            sst_dict[session['session']][session['unit']]['VM_Score'] = 3
+            sst_dict[session['session']][session['unit']]['Quality'] = 3
+        
         # Make array-aligned figures
         for ic, cond in enumerate(plot_conds):
             # Array plots
