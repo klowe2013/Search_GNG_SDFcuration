@@ -349,9 +349,11 @@ function getScores() {
 window.onload = () => {
     updateSessPlots(true).then(() => {
         updateClickEvents().then(() => {
-            hideUnchecked().then(() => updateButton.value = 'Update');
+            hideUnchecked().then(() => {
+                updateButton.value = 'Update';
+                getScores();
+            })
         });
-        getScores();
     })
 }
 
@@ -375,8 +377,10 @@ sessElement.addEventListener("change", (e) => {
 })
 updateButton.addEventListener('click', () => {
     updateSessPlots(false).then(() => {
-        hideUnchecked().then(() => updateButton.value = 'Update');
-        getScores();
+        hideUnchecked().then(() => {
+            updateButton.value = 'Update';
+            getScores();
+        })
     })
 })
 qualSlider.addEventListener('change', (e) => {

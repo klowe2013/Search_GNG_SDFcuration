@@ -196,6 +196,7 @@ def set_type_cb():
 
 @app.route('/get-scores-cb')
 def get_scores():
+    print('In get_scores, sst_dict is:')
     print(sst_dict)
     
     try:
@@ -286,6 +287,9 @@ def update_plots():
         session['unit'] = this_unit
         sst_dict[session['session']] = {session['unit']: unit_ssts}
 
+        print('In update_plots, sst_dict is:')
+        print(sst_dict)
+        
         # If the unit gets loaded, initialize VM and Quality to 3 if they haven't been saved previously 
         # (units that haven't been loaded will have no scores here and can be marked that way)
         if 'VM_Score' not in unit_ssts.keys():
