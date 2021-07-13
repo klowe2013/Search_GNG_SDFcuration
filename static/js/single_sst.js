@@ -333,7 +333,6 @@ function getScores() {
 
     $.getJSON({
         url: "/get-scores-cb", success: (res) => {
-            console.log(res)
             qualSlider.value = res.qual;
             if (res.vm == 0) {
                 typeSlider.value = 3;

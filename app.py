@@ -7,7 +7,6 @@ import os
 from utils.mongoUtils import MongoConnect, PullNHPs, PullSess, PullUnits, SpikesFromDB, MongoLogin, AllSDFs, UpdateUnit
 from utils.plotUtils import PlotConds, PltMeanStd, PlotPop, GetYRange, AddVLine
 from utils.mathUtils import NormSDFs
-import sys
 
 # Plotting imports
 import plotly
@@ -197,17 +196,8 @@ def set_type_cb():
 
 @app.route('/get-scores-cb')
 def get_scores():
-    try:
-        vm_val = sst_dict[session['session']][session['unit']]['VM_Score']
-    except:
-        t, v, _ = sys.exc_info()
-        return jsonify({'t': t, 'v': v, 'where': 'vm'})
-
-    try:
-        qual_val = sst_dict[session['session']][session['unit']]['Quality']
-    except:
-        t, v, _ = sys.exc_info()
-        return jsonify({'t': t, 'v': v, 'where': 'qual'})
+    vm_val = sst_dict[session['session']][session['unit']]['VM_Score']
+    qual_val = sst_dict[session['session']][session['unit']]['Quality']
     
     return jsonify({'vm': vm_val, 'qual': qual_val})
 
