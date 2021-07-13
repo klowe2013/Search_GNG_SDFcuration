@@ -196,6 +196,8 @@ def set_type_cb():
 
 @app.route('/get-scores-cb')
 def get_scores():
+    print(sst_dict)
+    
     try:
         vm_val = sst_dict[session['session']][session['unit']]['VM_Score']
     except:
