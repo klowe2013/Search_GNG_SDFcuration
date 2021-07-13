@@ -69,7 +69,10 @@ def single_sst():
     is_auth = session.get('is_auth')
     if is_auth is False or is_auth is None:
         session['user'] = 'none'
-        
+    
+    # Make sst_dict a session variable
+    session['sst_dict'] = sst_dict
+            
     # Make list of NHPs
     nhp_list = PullNHPs(sdf_coll, session['is_auth'])
     sess_list = PullSess(sdf_coll, nhp_list[0], session['is_auth'])
@@ -171,12 +174,12 @@ def unit_update_cb():
 def set_quality_cb():
     this_quality = request.args.get('quality')
     
-    if session['session'] not in sst_dict.keys():
-        sst_dict[session['session']] = {}
-    if session['unit'] not in sst_dict[session['session']].keys():
-        sst_dict[session['session']][session['unit']] = {}
+    if session['session'] not in session['sst_dict'].keys():
+        session['sst_dict'][session['session']] = {}
+    if session['unit'] not in session['sst_dict'][session['session']].keys():
+        session['sst_dict'][session['session']][session['unit']] = {}
     
-    sst_dict[session['session']][session['unit']]['Quality'] = this_quality
+    session['sst_dict'][session['session']][session['unit']]['Quality'] = this_quality
 
     return jsonify({'success': True})
 
@@ -189,7 +192,7 @@ def set_type_cb():
     if none_checked=='true':
         this_vm = 0
     
-    sst_dict[session['session']][session['unit']]['VM_Score'] = this_vm
+    session['sst_dict'][session['session']][session['unit']]['VM_Score'] = this_vm
     
     return jsonify({'success': True})
 
@@ -197,18 +200,18 @@ def set_type_cb():
 @app.route('/get-scores-cb')
 def get_scores():
     print('In get_scores, sst_dict is:')
-    print(sst_dict)
+    print(session['sst_dict'])
     
     try:
-        vm_val = sst_dict[session['session']][session['unit']]['VM_Score']
+        vm_val = session['sst_dict'][session['session']][session['unit']]['VM_Score']
     except:
-        sst_dict[session['session']][session['unit']]['VM_Score'] = 3
+        session['sst_dict'][session['session']][session['unit']]['VM_Score'] = 3
         vm_val = 3
                 
     try:
-        qual_val = sst_dict[session['session']][session['unit']]['Quality']
+        qual_val = session['sst_dict'][session['session']][session['unit']]['Quality']
     except:
-        sst_dict[session['session']][session['unit']]['Quality'] = 3
+        session['sst_dict'][session['session']][session['unit']]['Quality'] = 3
         qual_val = 3
             
     return jsonify({'vm': vm_val, 'qual': qual_val})
@@ -227,15 +230,15 @@ def sst_click_parse():
         plot_label = 'unk'
 
     # Put in key dict
-    if session['session'] not in sst_dict.keys():
-        sst_dict[session['session']] = {}
-    if session['unit'] not in sst_dict[session['session']].keys():
-        sst_dict[session['session']][session['unit']] = {}
-    if sel_type not in sst_dict[session['session']][session['unit']].keys():
-        sst_dict[session['session']][session['unit']][sel_type] = {}
-    if plot_label not in sst_dict[session['session']][session['unit']][sel_type].keys():
-        sst_dict[session['session']][session['unit']][sel_type][plot_label] = []
-    sst_dict[session['session']][session['unit']][sel_type][plot_label].append(click_sst)
+    if session['session'] not in session['sst_dict'].keys():
+        session['sst_dict'][session['session']] = {}
+    if session['unit'] not in session['sst_dict'][session['session']].keys():
+        session['sst_dict'][session['session']][session['unit']] = {}
+    if sel_type not in session['sst_dict'][session['session']][session['unit']].keys():
+        session['sst_dict'][session['session']][session['unit']][sel_type] = {}
+    if plot_label not in session['sst_dict'][session['session']][session['unit']][sel_type].keys():
+        session['sst_dict'][session['session']][session['unit']][sel_type][plot_label] = []
+    session['sst_dict'][session['session']][session['unit']][sel_type][plot_label].append(click_sst)
     
     return jsonify({'success': True})
 
@@ -246,18 +249,18 @@ def sst_submit():
     from random import randint
     f_name = './tmp_dict_{}.json'.format(randint(0,1000000))
     with open(f_name,'w') as w:
-        json.dump(sst_dict,w)
+        json.dump(session['sst_dict'],w)
     
     # Now we can do the real update
-    all_sess = sst_dict.keys()
+    all_sess = session['sst_dict'].keys()
     n_tot = 0
     n_complete = 0
     for i, sess in enumerate(all_sess):
-        sess_units = sst_dict[sess].keys()
+        sess_units = session['sst_dict'][sess].keys()
         for iu, unit in enumerate(sess_units):
             n_tot += 1
             update_dict = {}
-            update_dict['ManualTimes_'+session['user']] = sst_dict[sess][unit]
+            update_dict['ManualTimes_'+session['user']] = session['sst_dict'][sess][unit]
             update_success = UpdateUnit(sdf_coll, sess, unit, update_dict)
             if update_success:
                 n_complete += 1
@@ -285,16 +288,16 @@ def update_plots():
         v_dict, v_dict_sem, m_dict, m_dict_sem, unit_ssts = SpikesFromDB(this_sess, this_unit, sdf_coll, user=session['user'])
         session['session'] = this_sess
         session['unit'] = this_unit
-        sst_dict[session['session']] = {session['unit']: unit_ssts}
+        session['sst_dict'][session['session']] = {session['unit']: unit_ssts}
 
         print('In update_plots, sst_dict is:')
-        print(sst_dict)
+        print(session['sst_dict'])
         
         # If the unit gets loaded, initialize VM and Quality to 3 if they haven't been saved previously 
         # (units that haven't been loaded will have no scores here and can be marked that way)
         if 'VM_Score' not in unit_ssts.keys():
-            sst_dict[session['session']][session['unit']]['VM_Score'] = 3
-            sst_dict[session['session']][session['unit']]['Quality'] = 3
+            session['sst_dict'][session['session']][session['unit']]['VM_Score'] = 3
+            session['sst_dict'][session['session']][session['unit']]['Quality'] = 3
         
         # Make array-aligned figures
         for ic, cond in enumerate(plot_conds):
@@ -374,9 +377,9 @@ def clear_ssts():
     this_sess = request.args.get('sess')
     this_unit = request.args.get('unit')
     
-    print(sst_dict[this_sess][this_unit])
-    sst_dict[this_sess][this_unit] = {}
-    print(sst_dict)
+    print(session['sst_dict'][this_sess][this_unit])
+    session['sst_dict'][this_sess][this_unit] = {}
+    print(session['sst_dict'])
     
     return jsonify({'success': True})
 
