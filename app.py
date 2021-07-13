@@ -4,6 +4,7 @@ import pickle
 import hashlib
 import json
 import os
+
 from utils.mongoUtils import MongoConnect, PullNHPs, PullSess, PullUnits, SpikesFromDB, MongoLogin, AllSDFs, UpdateUnit
 from utils.plotUtils import PlotConds, PltMeanStd, PlotPop, GetYRange, AddVLine
 from utils.mathUtils import NormSDFs
@@ -136,7 +137,8 @@ def login_callback():
             session['is_auth'] = is_auth
             if is_auth:
                 session['user'] = uName
-
+    session.modified = True
+    
     return jsonify({'isAuth': is_auth})
 
 
@@ -180,7 +182,8 @@ def set_quality_cb():
         session['sst_dict'][session['session']][session['unit']] = {}
     
     session['sst_dict'][session['session']][session['unit']]['Quality'] = this_quality
-
+    session.modified = True
+    
     return jsonify({'success': True})
 
 
@@ -193,15 +196,13 @@ def set_type_cb():
         this_vm = 0
     
     session['sst_dict'][session['session']][session['unit']]['VM_Score'] = this_vm
+    session.modified = True
     
     return jsonify({'success': True})
 
 
 @app.route('/get-scores-cb')
 def get_scores():
-    print('In get_scores, sst_dict is:')
-    print(session['sst_dict'])
-    
     try:
         vm_val = session['sst_dict'][session['session']][session['unit']]['VM_Score']
     except:
@@ -213,7 +214,7 @@ def get_scores():
     except:
         session['sst_dict'][session['session']][session['unit']]['Quality'] = 3
         qual_val = 3
-            
+    
     return jsonify({'vm': vm_val, 'qual': qual_val})
 
 
@@ -239,6 +240,7 @@ def sst_click_parse():
     if plot_label not in session['sst_dict'][session['session']][session['unit']][sel_type].keys():
         session['sst_dict'][session['session']][session['unit']][sel_type][plot_label] = []
     session['sst_dict'][session['session']][session['unit']][sel_type][plot_label].append(click_sst)
+    session.modified = True
     
     return jsonify({'success': True})
 
@@ -264,6 +266,7 @@ def sst_submit():
             update_success = UpdateUnit(sdf_coll, sess, unit, update_dict)
             if update_success:
                 n_complete += 1
+            else:
                 print('Unable to update unit {} from session {}'.format(unit,sess))
     if n_tot == n_complete:
         os.remove(f_name)
@@ -288,17 +291,20 @@ def update_plots():
         v_dict, v_dict_sem, m_dict, m_dict_sem, unit_ssts = SpikesFromDB(this_sess, this_unit, sdf_coll, user=session['user'])
         session['session'] = this_sess
         session['unit'] = this_unit
-        session['sst_dict'][session['session']] = {session['unit']: unit_ssts}
-
-        print('In update_plots, sst_dict is:')
-        print(session['sst_dict'])
+        if this_sess not in session['sst_dict'].keys():
+            session['sst_dict'][session['session']] = {session['unit']: unit_ssts}
+        elif this_unit not in session['sst_dict'][session['session']].keys():
+            session['sst_dict'][session['session']][this_unit] = unit_ssts
+        else:
+            session['sst_dict'][session['session']][session['unit']] = unit_ssts
         
         # If the unit gets loaded, initialize VM and Quality to 3 if they haven't been saved previously 
         # (units that haven't been loaded will have no scores here and can be marked that way)
         if 'VM_Score' not in unit_ssts.keys():
             session['sst_dict'][session['session']][session['unit']]['VM_Score'] = 3
             session['sst_dict'][session['session']][session['unit']]['Quality'] = 3
-        
+        session.modified = True
+            
         # Make array-aligned figures
         for ic, cond in enumerate(plot_conds):
             # Array plots
@@ -376,10 +382,8 @@ def get_pop_plots():
 def clear_ssts():
     this_sess = request.args.get('sess')
     this_unit = request.args.get('unit')
-    
-    print(session['sst_dict'][this_sess][this_unit])
     session['sst_dict'][this_sess][this_unit] = {}
-    print(session['sst_dict'])
+    session.modified = True
     
     return jsonify({'success': True})
 

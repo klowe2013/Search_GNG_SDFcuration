@@ -146,4 +146,5 @@ def UpdateUnit(coll, sess, unit, update):
         coll.update_one(query, {"$set": update})
     except:
         success = False
+    
     return success

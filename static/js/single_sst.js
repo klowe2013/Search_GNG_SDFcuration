@@ -184,9 +184,11 @@ function updateClickEvents() {
 }
 
 function submitSSTs() {
+    const submitButton = document.getElementById('sst_submit')
+    submitButton.value = 'Submitting values...'
     $.getJSON({
         url: "/sst-submit", data: { 'submit': true }, success: (res) => {
-            console.log('Successfully submitted SST')
+            submitButton.value = 'Submit SST'
         }
     })
 }
